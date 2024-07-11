@@ -1,2 +1,8 @@
-// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+using TinyFunctionalLanguage.Parse;
+
+string program = Console.In.ReadToEnd();
+
+Tokenizer tokenizer = new(program);
+
+while (tokenizer.Peek().Type != TokenType.Eof)
+    Console.WriteLine(tokenizer.Next());
