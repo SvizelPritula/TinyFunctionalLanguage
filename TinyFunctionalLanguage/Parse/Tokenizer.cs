@@ -159,6 +159,7 @@ public class Tokenizer
     static Dictionary<string, TokenType> keywords = new()
     {
         ["if"] = TokenType.If,
+        ["else"] = TokenType.Else,
         ["while"] = TokenType.While,
         ["func"] = TokenType.Func,
         ["struct"] = TokenType.Struct,
@@ -176,6 +177,7 @@ public class Tokenizer
         ['{'] = TokenType.LeftBrace,
         ['}'] = TokenType.RightBrace,
         [','] = TokenType.Comma,
+        [':'] = TokenType.Colon,
         [';'] = TokenType.Semi,
         ['.'] = TokenType.Dot,
 

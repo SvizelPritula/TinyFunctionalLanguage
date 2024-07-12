@@ -8,4 +8,5 @@ public interface ITypeName
 }
 
 public record class IntTypeName(Span Span) : ITypeName;
-public record class BoloTypeName(Span Span) : ITypeName;
+public record class BoolTypeName(Span Span) : ITypeName;
+public record class UnitTypeName(Span Span) : ITypeName;

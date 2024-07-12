@@ -1,6 +1,6 @@
 namespace TinyFunctionalLanguage.Parse;
 
-public record struct Token(TokenType Type, object? LiteralValue = null);
+public record struct Token(TokenType Type, object? Content = null);
 
 public enum TokenType
 {
@@ -8,6 +8,7 @@ public enum TokenType
     IntLiteral,
 
     If,
+    Else,
     While,
     Func,
     Struct,
@@ -23,6 +24,7 @@ public enum TokenType
     RightBrace,
 
     Comma,
+    Colon,
     Semi,
     Dot,
 
