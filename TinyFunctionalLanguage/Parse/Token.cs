@@ -11,6 +11,7 @@ public enum TokenType
     While,
     Func,
     Struct,
+    Let,
     Int,
     Bool,
     True,
@@ -23,6 +24,7 @@ public enum TokenType
 
     Comma,
     Semi,
+    Dot,
 
     Equal,
     DoubleEqual,

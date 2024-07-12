@@ -162,6 +162,7 @@ public class Tokenizer
         ["while"] = TokenType.While,
         ["func"] = TokenType.Func,
         ["struct"] = TokenType.Struct,
+        ["let"] = TokenType.Let,
         ["int"] = TokenType.Int,
         ["bool"] = TokenType.Bool,
         ["true"] = TokenType.True,
@@ -176,6 +177,7 @@ public class Tokenizer
         ['}'] = TokenType.RightBrace,
         [','] = TokenType.Comma,
         [';'] = TokenType.Semi,
+        ['.'] = TokenType.Dot,
 
         ['='] = TokenType.Equal,
         ['<'] = TokenType.Less,
