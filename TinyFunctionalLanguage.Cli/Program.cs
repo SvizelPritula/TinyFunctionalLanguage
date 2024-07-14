@@ -1,9 +1,11 @@
-using TinyFunctionalLanguage.Parse;
-using TinyFunctionalLanguage.Errors;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
+using TinyFunctionalLanguage.Parse;
+using TinyFunctionalLanguage.Errors;
 using TinyFunctionalLanguage.Bindings;
 using TinyFunctionalLanguage.Types;
+using TinyFunctionalLanguage.CodeGen;
 
 try
 {
@@ -12,6 +14,17 @@ try
     BindingPass.Run(ast);
     TypeInferencePass.Run(ast);
 
+    Action func = CodeGen.Compile(ast);
+    func();
+}
+catch (LanguageException ex)
+{
+    Console.WriteLine($"{ex.Span}: {ex.Message}");
+}
+
+#pragma warning disable CS8321 // Local function is declared but never used
+static void DumpAst(Program ast)
+{
     var options = new JsonSerializerOptions();
     options.Converters.Add(new InterfaceConverter());
     options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
@@ -21,10 +34,7 @@ try
 
     Console.WriteLine(JsonSerializer.Serialize(ast, options));
 }
-catch (LanguageException ex)
-{
-    Console.WriteLine($"{ex.Span}: {ex.Message}");
-}
+#pragma warning restore CS8321 // Local function is declared but never used
 
 class InterfaceConverter : JsonConverterFactory
 {

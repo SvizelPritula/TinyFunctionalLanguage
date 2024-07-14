@@ -74,14 +74,15 @@ class TypeInferencePassVisitor : IExprVisitor, IDeclVisitor
 
         switch (@operator)
         {
-            case BinaryOperator.Equal or BinaryOperator.NotEqual or BinaryOperator.Less
-                or BinaryOperator.Greater or BinaryOperator.LessEqual or BinaryOperator.GreaterEqual:
+            case BinaryOperator.Equal or BinaryOperator.NotEqual:
                 if (left == right && left.IsPrimitive)
                     return left;
                 break;
 
             case BinaryOperator.Plus or BinaryOperator.Minus or BinaryOperator.Star
-                or BinaryOperator.Slash or BinaryOperator.Percent:
+                or BinaryOperator.Slash or BinaryOperator.Percent
+                or BinaryOperator.Less or BinaryOperator.Greater
+                or BinaryOperator.LessEqual or BinaryOperator.GreaterEqual:
                 if (left is IntType && right is IntType)
                     return IntType.Instance;
                 break;

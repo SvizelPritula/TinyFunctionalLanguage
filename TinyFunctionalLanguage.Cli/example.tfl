@@ -1,11 +1,11 @@
-func a() {
+func main() {
     let a = 7;
     let x = a + 1;
     let x = true;
 
     if x !=! x {
         let n = 9;
-        n * n - a
+        n * n - a / 2
     } else {
         -{
             let x = 7;
