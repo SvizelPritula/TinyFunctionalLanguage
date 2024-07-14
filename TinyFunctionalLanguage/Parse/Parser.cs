@@ -94,15 +94,6 @@ public class Parser
         return new BlockExpr(statements, trailing, new(start, end));
     }
 
-    IExpression ParseParenExpression()
-    {
-        Expect(TokenType.LeftParen);
-        IExpression inner = ParseExpression();
-        Expect(TokenType.RightParen);
-
-        return inner;
-    }
-
     IExpression ParseExpression() => ParseOrExpression();
 
     IExpression ParseOrExpression() => ParseBinaryOperatorChain(
@@ -230,11 +221,20 @@ public class Parser
 
                 return new IntLiteralExpr((long)token.Content!, new(start, end));
 
+            case TokenType.True | TokenType.False:
+                tokenizer.Next();
+                end = tokenizer.LastTokenEnd;
+
+                return new BoolLiteralExpr(token.Type == TokenType.True, new(start, end));
+
             case TokenType.LeftParen:
                 return ParseParenExpression();
 
             case TokenType.LeftBrace:
                 return ParseBlock();
+
+            case TokenType.If:
+                return ParseIfExpression();
 
             default:
                 tokenizer.Next();
@@ -242,6 +242,35 @@ public class Parser
 
                 return new IntLiteralExpr((long)token.Content!, new(start, end));
         }
+    }
+
+    IExpression ParseParenExpression()
+    {
+        Expect(TokenType.LeftParen);
+        IExpression inner = ParseExpression();
+        Expect(TokenType.RightParen);
+
+        return inner;
+    }
+
+    IfExpr ParseIfExpression()
+    {
+        Point start = tokenizer.NextTokenStart;
+
+        Expect(TokenType.If);
+
+        IExpression condition = ParseExpression();
+        BlockExpr trueBlock = ParseBlock();
+        BlockExpr? falseBlock = null;
+
+        if (tokenizer.Peek().Type == TokenType.Else)
+        {
+            tokenizer.Next();
+            falseBlock = ParseBlock();
+        }
+
+        Point end = tokenizer.LastTokenEnd;
+        return new IfExpr(condition, trueBlock, falseBlock, new(start, end));
     }
 
     string ParseIdent()
