@@ -2,11 +2,13 @@ using TinyFunctionalLanguage.Parse;
 using TinyFunctionalLanguage.Errors;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using TinyFunctionalLanguage.Binding;
 
 try
 {
     var code = Console.In.ReadToEnd();
     var ast = Parser.Parse(new Tokenizer(code));
+    BindingPass.Run(ast);
 
     var options = new JsonSerializerOptions();
     options.Converters.Add(new InterfaceConverter());

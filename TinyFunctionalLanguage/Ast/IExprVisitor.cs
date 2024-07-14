@@ -1,12 +1,13 @@
 namespace TinyFunctionalLanguage.Ast;
 
-public interface IExprVisitor {
-    public void Visit(IntLiteralExpr expr);
-    public void Visit(BoolLiteralExpr expr);
-    public void Visit(BinaryOpExpr expr);
-    public void Visit(UnaryOpExpr expr);
-    public void Visit(BlockExpr expr);
-    public void Visit(IfExpr expr);
-    public void Visit(IdentExpr expr);
-    public void Visit(LetExpr expr);
+public interface IExprVisitor
+{
+    void Visit(IntLiteralExpr expr);
+    void Visit(BoolLiteralExpr expr);
+    void Visit(BinaryOpExpr expr);
+    void Visit(UnaryOpExpr expr);
+    void Visit(BlockExpr expr);
+    void Visit(IfExpr expr);
+    void Visit(IdentExpr expr);
+    void Visit(LetExpr expr);
 }

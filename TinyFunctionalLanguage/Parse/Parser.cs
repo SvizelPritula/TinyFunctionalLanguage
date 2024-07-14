@@ -245,7 +245,7 @@ public class Parser
 
                 return new IntLiteralExpr((long)token.Content!, new(start, end));
 
-            case TokenType.True | TokenType.False:
+            case TokenType.True or TokenType.False:
                 tokenizer.Next();
                 end = tokenizer.LastTokenEnd;
 
@@ -267,7 +267,7 @@ public class Parser
                 tokenizer.Next();
                 end = tokenizer.LastTokenEnd;
 
-                return new IntLiteralExpr((long)token.Content!, new(start, end));
+                throw new LanguageException($"Unexpected {token.Type} token", new(start, end));
         }
     }
 
