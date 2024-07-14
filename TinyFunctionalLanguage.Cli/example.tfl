@@ -1,13 +1,15 @@
 func a() {
+    let a = 7;
+    let x = a + 1;
     let x = true;
 
     if x !=! x {
         let n = 9;
-        n * n - x
+        n * n - a
     } else {
         -{
             let x = 7;
             x + 3
         }
-    } + x
+    } + a
 }

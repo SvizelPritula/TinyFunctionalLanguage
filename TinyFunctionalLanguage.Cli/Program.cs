@@ -3,23 +3,27 @@ using TinyFunctionalLanguage.Errors;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using TinyFunctionalLanguage.Bindings;
+using TinyFunctionalLanguage.Types;
 
 try
 {
     var code = Console.In.ReadToEnd();
     var ast = Parser.Parse(new Tokenizer(code));
     BindingPass.Run(ast);
+    TypeInferencePass.Run(ast);
 
     var options = new JsonSerializerOptions();
     options.Converters.Add(new InterfaceConverter());
     options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+    options.Converters.Add(new TypeConverter());
+    options.Converters.Add(new SpanConverter());
     options.WriteIndented = true;
 
     Console.WriteLine(JsonSerializer.Serialize(ast, options));
 }
 catch (LanguageException ex)
 {
-    Console.WriteLine($"{ex.Span.From.Row}:{ex.Span.From.Col} - {ex.Span.To.Row}:{ex.Span.To.Col}: {ex.Message}");
+    Console.WriteLine($"{ex.Span}: {ex.Message}");
 }
 
 class InterfaceConverter : JsonConverterFactory
@@ -39,6 +43,20 @@ class InterfaceConverter : JsonConverterFactory
     {
         public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) => JsonSerializer.Serialize(writer, new Instance(value.GetType().ToString(), value), options);
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) => JsonSerializer.Serialize(writer, new Instance(value.GetType().Name, value), options);
     }
+}
+
+class TypeConverter : JsonConverter<Type>
+{
+    public override Type? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, Type value, JsonSerializerOptions options) => writer.WriteStringValue(value.Name);
+}
+
+class SpanConverter : JsonConverter<Span>
+{
+    public override Span Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+
+    public override void Write(Utf8JsonWriter writer, Span value, JsonSerializerOptions options) => writer.WriteStringValue(value.ToString());
 }
