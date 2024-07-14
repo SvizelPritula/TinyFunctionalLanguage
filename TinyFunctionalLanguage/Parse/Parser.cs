@@ -34,7 +34,7 @@ public class Parser
         Point start = tokenizer.NextTokenStart;
 
         Expect(TokenType.Func);
-        string name = ParseIdent();
+        IdentExpr name = ParseIdent();
 
         Expect(TokenType.LeftParen);
         Expect(TokenType.RightParen);
@@ -85,13 +85,37 @@ public class Parser
                         throw new LanguageException("Expected a semicolon", new Span(lastEnd, lastEnd));
                     }
 
-                    trailing = ParseExpression();
+                    trailing = ParseStatement();
                     break;
             }
         }
 
         Point end = tokenizer.LastTokenEnd;
         return new BlockExpr(statements, trailing, new(start, end));
+    }
+
+    IExpression ParseStatement()
+    {
+        switch (tokenizer.Peek().Type)
+        {
+            case TokenType.Let:
+                return ParseLet();
+            default:
+                return ParseExpression();
+        }
+    }
+
+    LetExpr ParseLet()
+    {
+        Point start = tokenizer.NextTokenStart;
+
+        Expect(TokenType.Let);
+        IdentExpr name = ParseIdent();
+        Expect(TokenType.Equal);
+        IExpression value = ParseExpression();
+
+        Point end = tokenizer.LastTokenEnd;
+        return new LetExpr(name, value, new(start, end));
     }
 
     IExpression ParseExpression() => ParseOrExpression();
@@ -227,6 +251,9 @@ public class Parser
 
                 return new BoolLiteralExpr(token.Type == TokenType.True, new(start, end));
 
+            case TokenType.Ident:
+                return ParseIdent();
+
             case TokenType.LeftParen:
                 return ParseParenExpression();
 
@@ -273,7 +300,7 @@ public class Parser
         return new IfExpr(condition, trueBlock, falseBlock, new(start, end));
     }
 
-    string ParseIdent()
+    IdentExpr ParseIdent()
     {
         Point start = tokenizer.NextTokenStart;
         Token nameToken = tokenizer.Next();
@@ -282,7 +309,7 @@ public class Parser
         if (nameToken.Type != TokenType.Ident)
             throw new LanguageException($"Expected an identifier, got a {nameToken.Type} token", new(start, end));
 
-        return (string)nameToken.Content!;
+        return new IdentExpr((string)nameToken.Content!, new(start, end));
     }
 
     void Expect(TokenType expected)

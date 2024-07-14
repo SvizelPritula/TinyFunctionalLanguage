@@ -7,4 +7,6 @@ public interface IExprVisitor {
     public void Visit(UnaryOpExpr expr);
     public void Visit(BlockExpr expr);
     public void Visit(IfExpr expr);
+    public void Visit(IdentExpr expr);
+    public void Visit(LetExpr expr);
 }

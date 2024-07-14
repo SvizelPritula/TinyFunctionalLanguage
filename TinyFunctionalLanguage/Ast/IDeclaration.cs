@@ -4,6 +4,6 @@ namespace TinyFunctionalLanguage.Ast;
 
 public interface IDeclaration
 {
-    string Name { get; }
+    IdentExpr Name { get; }
     Span Span { get; }
 }
