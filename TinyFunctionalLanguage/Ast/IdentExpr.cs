@@ -1,4 +1,4 @@
-using TinyFunctionalLanguage.Binding;
+using TinyFunctionalLanguage.Bindings;
 using TinyFunctionalLanguage.Parse;
 
 namespace TinyFunctionalLanguage.Ast;

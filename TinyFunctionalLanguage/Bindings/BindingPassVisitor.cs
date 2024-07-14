@@ -1,7 +1,7 @@
 using TinyFunctionalLanguage.Ast;
 using TinyFunctionalLanguage.Errors;
 
-namespace TinyFunctionalLanguage.Binding;
+namespace TinyFunctionalLanguage.Bindings;
 
 class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor, IDeclVisitor
 {

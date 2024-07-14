@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace TinyFunctionalLanguage.Binding;
+namespace TinyFunctionalLanguage.Bindings;
 
 class ScopedMap<TKey, TValue> where TKey : notnull
 {

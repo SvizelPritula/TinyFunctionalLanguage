@@ -1,6 +1,6 @@
 using TinyFunctionalLanguage.Ast;
 
-namespace TinyFunctionalLanguage.Binding;
+namespace TinyFunctionalLanguage.Bindings;
 
 public static class BindingPass
 {

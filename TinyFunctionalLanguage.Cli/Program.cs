@@ -2,7 +2,7 @@ using TinyFunctionalLanguage.Parse;
 using TinyFunctionalLanguage.Errors;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using TinyFunctionalLanguage.Binding;
+using TinyFunctionalLanguage.Bindings;
 
 try
 {
