@@ -14,8 +14,10 @@ try
     BindingPass.Run(ast);
     TypeInferencePass.Run(ast);
 
-    Action func = CodeGen.Compile(ast);
-    func();
+    // Action func = CodeGen.Compile(ast);
+    // func();
+
+    DumpAst(ast);
 }
 catch (LanguageException ex)
 {
@@ -23,7 +25,7 @@ catch (LanguageException ex)
 }
 
 #pragma warning disable CS8321 // Local function is declared but never used
-static void DumpAst(Program ast)
+static void DumpAst(TinyFunctionalLanguage.Ast.Program ast)
 {
     var options = new JsonSerializerOptions();
     options.Converters.Add(new InterfaceConverter());

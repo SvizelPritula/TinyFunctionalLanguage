@@ -125,6 +125,12 @@ class TypeInferencePassVisitor : IExprVisitor
 
     public void Visit(FunctionDecl decl)
     {
+        Function func = (Function)decl.Name.Reference!;
+        func.ReturnType = TypeInferencePass.GetTypeFromTypeName(decl.ReturnType);
+
+        foreach (var (arg, argDecl) in func.Arguments.Zip(decl.Arguments))
+            arg.Type = TypeInferencePass.GetTypeFromTypeName(argDecl.Type);
+
         decl.Block.Accept(this);
     }
 }

@@ -14,8 +14,12 @@ public static class BindingPass
             {
                 List<Argument> arguments = [];
 
-                foreach (ArgumentDecl arg in functionDecl.Arguments)
-                    arguments.Add(new Argument());
+                foreach (ArgumentDecl argDecl in functionDecl.Arguments)
+                {
+                    Argument arg = new();
+                    argDecl.Name.Reference = arg;
+                    arguments.Add(arg);
+                }
 
                 Function function = new(arguments);
 

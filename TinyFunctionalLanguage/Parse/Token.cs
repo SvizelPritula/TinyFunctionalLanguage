@@ -15,6 +15,7 @@ public enum TokenType
     Let,
     Int,
     Bool,
+    Unit,
     True,
     False,
 

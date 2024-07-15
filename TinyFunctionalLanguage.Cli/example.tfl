@@ -1,15 +1,11 @@
-func main() {
-    let a = 7;
-    let x = a + 1;
-    let x = true;
+func main(a: int, b: int): int {
+    let sum = a + b;
 
-    if x !=! x {
-        let n = 9;
-        n * n - a / 2
+    let max_square = if a > b {
+        a * a
     } else {
-        -{
-            let x = 7;
-            x + 3
-        }
-    } + a
+        b * b
+    };
+
+    sum + max_square
 }

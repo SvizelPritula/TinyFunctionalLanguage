@@ -1,11 +1,7 @@
 using TinyFunctionalLanguage.Parse;
-using TinyFunctionalLanguage.Types;
 
 namespace TinyFunctionalLanguage.Ast;
 
-public record class FunctionDecl(IdentExpr Name, List<ArgumentDecl> Arguments, ITypeName ReturnType, BlockExpr Block, Span Span) : IDeclaration
-{
-    public IType? Type { get; set; } = null;
-}
+public record class FunctionDecl(IdentExpr Name, List<ArgumentDecl> Arguments, ITypeName ReturnType, BlockExpr Block, Span Span) : IDeclaration;
 
-public record struct ArgumentDecl(IdentExpr Name, ITypeName Type);
+public record class ArgumentDecl(IdentExpr Name, ITypeName Type);

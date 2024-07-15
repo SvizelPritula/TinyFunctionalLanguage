@@ -166,6 +166,7 @@ public class Tokenizer
         ["let"] = TokenType.Let,
         ["int"] = TokenType.Int,
         ["bool"] = TokenType.Bool,
+        ["unit"] = TokenType.Unit,
         ["true"] = TokenType.True,
         ["false"] = TokenType.False,
     };

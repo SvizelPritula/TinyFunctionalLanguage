@@ -11,4 +11,18 @@ public static class TypeInferencePass
         foreach (FunctionDecl function in program.Functions)
             visitor.Visit(function);
     }
+
+    internal static IType GetTypeFromTypeName(ITypeName name)
+    {
+        return name.Accept(new TypeResolverVisitor());
+    }
+
+    class TypeResolverVisitor : ITypeNameVisitor<IType>
+    {
+        public IType Visit(IntTypeName typeName) => IntType.Instance;
+
+        public IType Visit(BoolTypeName typeName) => BoolType.Instance;
+
+        public IType Visit(UnitTypeName typeName) => UnitType.Instance;
+    }
 }
