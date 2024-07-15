@@ -3,7 +3,12 @@ using TinyFunctionalLanguage.Types;
 
 namespace TinyFunctionalLanguage.Bindings;
 
-public class Variable : IBindable
+public interface IVariableLike : IBindable
+{
+    IType? Type { get; }
+}
+
+public class Variable : IVariableLike
 {
     public IType? Type { get; set; }
 

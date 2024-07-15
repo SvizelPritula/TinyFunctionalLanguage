@@ -9,7 +9,7 @@ public static class BindingPass
         ScopedMap<string, IBindable> scope = new();
         BindingPassVisitor visitor = new(scope);
 
-        foreach (IDeclaration decl in program.Declarations)
-            decl.Accept(visitor);
+        foreach (FunctionDecl function in program.Functions)
+            visitor.Visit(function);
     }
 }

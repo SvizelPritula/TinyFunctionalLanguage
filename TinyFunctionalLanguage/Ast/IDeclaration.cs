@@ -6,6 +6,4 @@ public interface IDeclaration
 {
     IdentExpr Name { get; }
     Span Span { get; }
-
-    void Accept(IDeclVisitor visitor);
 }

@@ -3,7 +3,7 @@ using TinyFunctionalLanguage.Errors;
 
 namespace TinyFunctionalLanguage.Bindings;
 
-class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor, IDeclVisitor
+class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
 {
     public void Visit(IntLiteralExpr expr) { }
 

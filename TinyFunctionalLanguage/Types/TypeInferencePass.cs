@@ -8,7 +8,7 @@ public static class TypeInferencePass
     {
         TypeInferencePassVisitor visitor = new();
 
-        foreach (var decl in program.Declarations)
-            decl.Accept(visitor);
+        foreach (FunctionDecl function in program.Functions)
+            visitor.Visit(function);
     }
 }

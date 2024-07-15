@@ -4,7 +4,7 @@ using TinyFunctionalLanguage.Errors;
 
 namespace TinyFunctionalLanguage.Types;
 
-class TypeInferencePassVisitor : IExprVisitor, IDeclVisitor
+class TypeInferencePassVisitor : IExprVisitor
 {
     public void Visit(IntLiteralExpr expr) => expr.Type = IntType.Instance;
 
@@ -55,7 +55,13 @@ class TypeInferencePassVisitor : IExprVisitor, IDeclVisitor
     }
 
 
-    public void Visit(IdentExpr expr) => expr.Type = expr.Reference!.Type;
+    public void Visit(IdentExpr expr)
+    {
+        if (expr.Reference is IVariableLike variable)
+            expr.Type = variable.Type;
+        else
+            throw new LanguageException($"{expr.Name} doesn't refer to a variable", expr.Span);
+    }
 
     public void Visit(LetExpr expr)
     {
