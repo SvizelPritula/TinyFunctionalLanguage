@@ -54,6 +54,15 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
 
     public void Visit(FunctionDecl decl)
     {
+        scope.Push();
+
+        Function function = (Function)decl.Name.Reference!;
+
+        foreach (var (arg, argDecl) in function.Arguments.Zip(decl.Arguments))
+            scope.Insert(argDecl.Name.Name, arg);
+
         decl.Block.Accept(this);
+
+        scope.Pop();
     }
 }

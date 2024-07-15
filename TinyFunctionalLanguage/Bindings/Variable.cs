@@ -14,3 +14,8 @@ public class Variable : IVariableLike
 
     public LocalBuilder? Local { get; set; }
 }
+
+public class Argument : IVariableLike
+{
+    public IType? Type { get; set; }
+}
