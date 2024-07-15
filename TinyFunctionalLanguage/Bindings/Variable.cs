@@ -18,4 +18,5 @@ public class Variable : IVariableLike
 public class Argument : IVariableLike
 {
     public IType? Type { get; set; }
+    public short? Index { get; set; }
 }

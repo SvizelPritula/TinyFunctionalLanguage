@@ -188,6 +188,8 @@ class CodeGenVisitor(ILGenerator generator) : IExprVisitor
     {
         if (expr.Reference is Variable variable)
             generator.Emit(OpCodes.Ldloc, variable.Local!);
+        else if (expr.Reference is Argument argument)
+            generator.Emit(OpCodes.Ldarg, (short)argument.Index!);
         else
             throw new Exception("Unknown binding type");
     }
@@ -204,14 +206,14 @@ class CodeGenVisitor(ILGenerator generator) : IExprVisitor
         MakeUnit();
     }
 
-    public void Generate(FunctionDecl func)
+    public void Generate(FunctionDecl funcDecl)
     {
-        func.Block.Accept(this);
+        Function func = (Function)funcDecl.Name.Reference!;
 
-        LocalBuilder result = generator.DeclareLocal(func.Block.Type!.ClrType!);
-        generator.Emit(OpCodes.Stloc, result);
-        generator.EmitWriteLine(result);
+        for (short i = 0; i < func.Arguments.Count; i++)
+            func.Arguments[i].Index = i;
 
+        funcDecl.Block.Accept(this);
         generator.Emit(OpCodes.Ret);
     }
 

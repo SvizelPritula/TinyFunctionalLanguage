@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 using TinyFunctionalLanguage.Ast;
+using TinyFunctionalLanguage.Bindings;
 
 namespace TinyFunctionalLanguage.CodeGen;
 
@@ -8,26 +9,34 @@ public static class CodeGen
 {
     const string assemblyName = "TFL";
 
-    public static Action Compile(Program program)
+    public static T Compile<T>(Program program) where T : Delegate
     {
         var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
         var module = assembly.DefineDynamicModule(assemblyName);
 
         foreach (IDeclaration decl in program.Declarations)
         {
-            if (decl is not FunctionDecl func)
+            if (decl is not FunctionDecl funcDecl)
                 continue;
 
-            var method = module.DefineGlobalMethod(decl.Name.Name, MethodAttributes.Public | MethodAttributes.Static, null, null);
+            Function func = (Function)funcDecl.Name.Reference!;
+
+            var method = module.DefineGlobalMethod(
+                decl.Name.Name,
+                MethodAttributes.Public | MethodAttributes.Static,
+                func.ReturnType!.ClrType,
+                func.Arguments.Select(a => a.Type!.ClrType!).ToArray()
+            );
+
             var generator = method.GetILGenerator();
 
-            new CodeGenVisitor(generator).Generate(func);
+            new CodeGenVisitor(generator).Generate(funcDecl);
 
         }
 
         module.CreateGlobalFunctions();
 
         MethodInfo main = module.GetMethod("main")!;
-        return main.CreateDelegate<Action>();
+        return main.CreateDelegate<T>();
     }
 }
