@@ -8,14 +8,13 @@ public interface IVariableLike : IBindable
     IType? Type { get; }
 }
 
-public class Variable : IVariableLike
+public record class Variable : IVariableLike
 {
     public IType? Type { get; set; }
-
     public LocalBuilder? Local { get; set; }
 }
 
-public class Argument : IVariableLike
+public record class Argument(string Name) : IVariableLike
 {
     public IType? Type { get; set; }
     public short? Index { get; set; }

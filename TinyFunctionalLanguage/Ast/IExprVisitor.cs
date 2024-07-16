@@ -10,4 +10,5 @@ public interface IExprVisitor
     void Visit(IfExpr expr);
     void Visit(IdentExpr expr);
     void Visit(LetExpr expr);
+    void Visit(CallExpr expr);
 }

@@ -233,11 +233,27 @@ public class Parser
         }
         else
         {
-            return ParseTerminal();
+            return ParseCallExpression();
         }
     }
 
-    IExpression ParseTerminal()
+    IExpression ParseCallExpression()
+    {
+        Point start = tokenizer.NextTokenStart;
+        IExpression inner = ParsePrimaryExpression();
+
+        while (tokenizer.Peek().Type == TokenType.LeftParen)
+        {
+            List<IExpression> args = ParseParenList(ParseExpression);
+            Point end = tokenizer.LastTokenEnd;
+
+            inner = new CallExpr(inner, args, new(start, end));
+        }
+
+        return inner;
+    }
+
+    IExpression ParsePrimaryExpression()
     {
         Point start = tokenizer.NextTokenStart;
         Point end;

@@ -12,4 +12,5 @@ public interface IFunctionLike : IBindable
 public record class Function(List<Argument> Arguments) : IFunctionLike
 {
     public IType? ReturnType { get; set; }
+    public MethodBuilder? Method { get; set; }
 }

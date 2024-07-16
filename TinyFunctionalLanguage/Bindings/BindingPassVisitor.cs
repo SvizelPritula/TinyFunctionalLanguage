@@ -52,6 +52,13 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
         expr.Name.Reference = variable;
     }
 
+    public void Visit(CallExpr expr)
+    {
+        expr.Function.Accept(this);
+        foreach (var arg in expr.Arguments)
+            arg.Accept(this);
+    }
+
     public void Visit(FunctionDecl decl)
     {
         scope.Push();

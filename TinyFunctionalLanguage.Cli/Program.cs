@@ -14,8 +14,8 @@ try
     BindingPass.Run(ast);
     TypeInferencePass.Run(ast);
 
-    var func = CodeGen.Compile<Func<long, long, long>>(ast);
-    Console.WriteLine(func(10, 16));
+    var func = CodeGen.Compile<Func<long, long>>(ast);
+    Console.WriteLine(func(80));
 }
 catch (LanguageException ex)
 {

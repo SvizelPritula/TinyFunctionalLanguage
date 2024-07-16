@@ -72,6 +72,35 @@ class TypeInferencePassVisitor : IExprVisitor
         expr.Type = UnitType.Instance;
     }
 
+    public void Visit(CallExpr expr)
+    {
+        if (expr.Function is not IdentExpr funcIdent)
+            throw new LanguageException("It's only possible to call named functions", expr.Function.Span);
+
+        if (funcIdent.Reference is not Function func)
+            throw new LanguageException($"{funcIdent.Name} doesn't refer to a function", expr.Span);
+
+        foreach (var argExpr in expr.Arguments)
+            argExpr.Accept(this);
+
+        if (func.Arguments.Count != expr.Arguments.Count)
+            throw new LanguageException(
+                $"The function takes {func.Arguments.Count} arguments but is called with {expr.Arguments.Count}",
+                expr.Span
+            );
+
+        foreach (var (arg, argExpr) in func.Arguments.Zip(expr.Arguments))
+        {
+            if (arg.Type != argExpr.Type)
+                throw new LanguageException(
+                    $"The argument {arg.Name} has type {arg.Type}, but a value of type {arg.Type} is given",
+                    argExpr.Span
+                );
+        }
+
+        expr.Type = func.ReturnType;
+    }
+
     static IType GetBinaryOpResultType(BinaryOpExpr expr)
     {
         BinaryOperator @operator = expr.Operator;
@@ -125,12 +154,14 @@ class TypeInferencePassVisitor : IExprVisitor
 
     public void Visit(FunctionDecl decl)
     {
-        Function func = (Function)decl.Name.Reference!;
-        func.ReturnType = TypeInferencePass.GetTypeFromTypeName(decl.ReturnType);
-
-        foreach (var (arg, argDecl) in func.Arguments.Zip(decl.Arguments))
-            arg.Type = TypeInferencePass.GetTypeFromTypeName(argDecl.Type);
+        var func = (Function)decl.Name.Reference!;
 
         decl.Block.Accept(this);
+
+        if (decl.Block.Type != func.ReturnType)
+            throw new LanguageException(
+                $"The {decl.Name.Name} function should return {func.ReturnType} but returns {decl.Block.Type}",
+                decl.Block.Span
+            );
     }
 }

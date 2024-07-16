@@ -191,7 +191,7 @@ class CodeGenVisitor(ILGenerator generator) : IExprVisitor
         else if (expr.Reference is Argument argument)
             generator.Emit(OpCodes.Ldarg, (short)argument.Index!);
         else
-            throw new Exception("Unknown binding type");
+            throw new InvalidOperationException("Unknown binding type");
     }
 
     public void Visit(LetExpr expr)
@@ -204,6 +204,17 @@ class CodeGenVisitor(ILGenerator generator) : IExprVisitor
         generator.Emit(OpCodes.Stloc, local);
 
         MakeUnit();
+    }
+
+    public void Visit(CallExpr expr)
+    {
+        if (expr.Function is not IdentExpr { Reference: Function func })
+            throw new InvalidOperationException("Only bound functions can be called");
+
+        foreach (var arg in expr.Arguments)
+            arg.Accept(this);
+
+        generator.Emit(OpCodes.Call, func.Method!);
     }
 
     public void Generate(FunctionDecl funcDecl)

@@ -16,7 +16,7 @@ public static class BindingPass
 
                 foreach (ArgumentDecl argDecl in functionDecl.Arguments)
                 {
-                    Argument arg = new();
+                    Argument arg = new(argDecl.Name.Name);
                     argDecl.Name.Reference = arg;
                     arguments.Add(arg);
                 }

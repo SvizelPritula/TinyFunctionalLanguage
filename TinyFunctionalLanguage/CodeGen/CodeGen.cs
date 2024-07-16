@@ -14,12 +14,9 @@ public static class CodeGen
         var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
         var module = assembly.DefineDynamicModule(assemblyName);
 
-        foreach (IDeclaration decl in program.Declarations)
+        foreach (FunctionDecl decl in program.Functions)
         {
-            if (decl is not FunctionDecl funcDecl)
-                continue;
-
-            Function func = (Function)funcDecl.Name.Reference!;
+            var func = (Function)decl.Name.Reference!;
 
             var method = module.DefineGlobalMethod(
                 decl.Name.Name,
@@ -28,10 +25,15 @@ public static class CodeGen
                 func.Arguments.Select(a => a.Type!.ClrType!).ToArray()
             );
 
-            var generator = method.GetILGenerator();
+            func.Method = method;
+        }
 
-            new CodeGenVisitor(generator).Generate(funcDecl);
+        foreach (FunctionDecl decl in program.Functions)
+        {
+            var func = (Function)decl.Name.Reference!;
 
+            var generator = func.Method!.GetILGenerator();
+            new CodeGenVisitor(generator).Generate(decl);
         }
 
         module.CreateGlobalFunctions();
