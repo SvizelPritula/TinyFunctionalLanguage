@@ -3,18 +3,14 @@ using System.Text.Json.Serialization;
 
 using TinyFunctionalLanguage.Parse;
 using TinyFunctionalLanguage.Errors;
-using TinyFunctionalLanguage.Bindings;
-using TinyFunctionalLanguage.Types;
-using TinyFunctionalLanguage.CodeGen;
+using TinyFunctionalLanguage;
 
 try
 {
     var code = Console.In.ReadToEnd();
-    var ast = Parser.Parse(new Tokenizer(code));
-    BindingPass.Run(ast);
-    TypeInferencePass.Run(ast);
+    var module = Compiler.Compile(code);
 
-    var func = CodeGen.Compile<Func<long, long>>(ast);
+    var func = module.GetMethod("main")!.CreateDelegate<Func<long, long>>();
     Console.WriteLine(func(80));
 }
 catch (LanguageException ex)

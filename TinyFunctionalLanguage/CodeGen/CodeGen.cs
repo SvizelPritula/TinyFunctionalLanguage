@@ -9,7 +9,7 @@ public static class CodeGen
 {
     const string assemblyName = "TFL";
 
-    public static T Compile<T>(Program program) where T : Delegate
+    public static Module Compile(Program program)
     {
         var assembly = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.Run);
         var module = assembly.DefineDynamicModule(assemblyName);
@@ -37,8 +37,6 @@ public static class CodeGen
         }
 
         module.CreateGlobalFunctions();
-
-        MethodInfo main = module.GetMethod("main")!;
-        return main.CreateDelegate<T>();
+        return module;
     }
 }
