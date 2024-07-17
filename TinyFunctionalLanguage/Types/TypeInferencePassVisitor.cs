@@ -168,7 +168,7 @@ class TypeInferencePassVisitor : IExprVisitor
         throw new LanguageException($"The {@operator} operator is not defined for type {type}", expr.Span);
     }
 
-    public void Visit(FunctionDecl decl)
+    public void Process(FunctionDecl decl)
     {
         var func = decl.Reference!;
 

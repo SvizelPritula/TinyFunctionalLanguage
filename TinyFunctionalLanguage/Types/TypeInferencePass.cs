@@ -13,7 +13,7 @@ public static class TypeInferencePass
         TypeInferencePassVisitor visitor = new();
 
         foreach (FunctionDecl function in program.Functions)
-            visitor.Visit(function);
+            visitor.Process(function);
     }
 
     static void SetTypesForFunction(FunctionDecl decl)

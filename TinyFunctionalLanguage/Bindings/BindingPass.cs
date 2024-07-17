@@ -31,6 +31,6 @@ public static class BindingPass
         BindingPassVisitor visitor = new(scope);
 
         foreach (FunctionDecl function in program.Functions)
-            visitor.Visit(function);
+            visitor.Process(function);
     }
 }
