@@ -102,6 +102,23 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
         MakeUnit();
     }
 
+    public void Visit(WhileExpr expr)
+    {
+        Label conditionLabel = generator.DefineLabel();
+        Label endLabel = generator.DefineLabel();
+
+        generator.MarkLabel(conditionLabel);
+        expr.Condition.Accept(this);
+        generator.Emit(OpCodes.Brfalse, endLabel);
+
+        expr.Body.Accept(this);
+        generator.Emit(OpCodes.Pop);
+        generator.Emit(OpCodes.Br, conditionLabel);
+
+        generator.MarkLabel(endLabel);
+        MakeUnit();
+    }
+
     public void Generate(FunctionDecl funcDecl)
     {
         Function func = funcDecl.Reference!;

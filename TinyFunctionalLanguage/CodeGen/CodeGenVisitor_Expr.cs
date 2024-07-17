@@ -10,7 +10,7 @@ partial class CodeGenVisitor : IExprVisitor
 {
     public void Visit(BinaryOpExpr expr)
     {
-        switch ((expr.Operator, expr.Type))
+        switch ((expr.Operator, expr.Left.Type))
         {
             case (BinaryOperator.Equal, IntType or BoolType):
                 expr.Left.Accept(this);

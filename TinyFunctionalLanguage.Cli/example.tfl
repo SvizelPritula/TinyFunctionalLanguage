@@ -1,17 +1,15 @@
 func main(n: int): int {
-    fib(0, 1, n)
-}
+    let a = 0;
+    let b = 1;
 
-func fib(a: int, b: int, n: int): int {
-    let x = if n <= 0 {
-        a
-    } else {
-        fib(b, a + b, n - 1)
+    while n > 0 {
+        let sum = a + b;
+
+        a = b;
+        b = sum;
+
+        n = n - 1;
     };
 
-    if x > 1000000 {
-        x = 1000000;
-    };
-
-    x
+    a
 }

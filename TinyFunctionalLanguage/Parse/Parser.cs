@@ -61,6 +61,8 @@ public partial class Parser
         {
             case TokenType.Let:
                 return ParseLet();
+            case TokenType.While:
+                return ParseWhile();
             default:
                 return ParseAssignmentOrExpression();
         }
@@ -93,5 +95,18 @@ public partial class Parser
         Point end = tokenizer.LastTokenEnd;
 
         return new AssignmentExpr(left, right, new(start, end));
+    }
+
+    WhileExpr ParseWhile()
+    {
+        Point start = tokenizer.NextTokenStart;
+
+        Expect(TokenType.While);
+        IExpression condition = ParseExpression();
+        BlockExpr body = ParseBlock();
+
+        Point end = tokenizer.LastTokenEnd;
+
+        return new WhileExpr(condition, body, new(start, end));
     }
 }

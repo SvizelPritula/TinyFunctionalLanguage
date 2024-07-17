@@ -38,22 +38,30 @@ class TypeInferencePassVisitor : IExprVisitor
         expr.TrueBlock.Accept(this);
         expr.FalseBlock?.Accept(this);
 
+        if (expr.Condition.Type != BoolType.Instance)
+            throw new LanguageException($"A condition must evaluate to a boolean, is of type {expr.Condition.Type}", expr.Condition.Span);
+
         IType type = expr.TrueBlock.Type!;
 
         if (expr.FalseBlock is BlockExpr falseBlock)
         {
             if (falseBlock.Type != type)
-                throw new LanguageException("Branches of if blocks have different types", expr.Span);
+                throw new LanguageException(
+                    $"Branches of if blocks have different types, {type} and {falseBlock.Type}",
+                    expr.Span
+                );
         }
         else
         {
             if (type != UnitType.Instance)
-                throw new LanguageException("The body of an if block without an else must return the unit type", expr.Span);
+                throw new LanguageException(
+                    $"The body of an if expression without an else block must return the unit type, is of type {expr.TrueBlock.Type}",
+                    expr.Span
+                );
         }
 
         expr.Type = type;
     }
-
 
     public void Visit(IdentExpr expr)
     {
@@ -117,6 +125,23 @@ class TypeInferencePassVisitor : IExprVisitor
         expr.Type = UnitType.Instance;
     }
 
+    public void Visit(WhileExpr expr)
+    {
+        expr.Condition.Accept(this);
+        expr.Body.Accept(this);
+
+        if (expr.Condition.Type != BoolType.Instance)
+            throw new LanguageException($"A condition must evaluate to a boolean, is of type {expr.Condition.Type}", expr.Condition.Span);
+
+        if (expr.Body.Type != UnitType.Instance)
+            throw new LanguageException(
+                $"The body of a while statement without an else must return the unit type, is of type {expr.Body.Type}",
+                expr.Span
+            );
+
+        expr.Type = UnitType.Instance;
+    }
+
     static IType GetBinaryOpResultType(BinaryOpExpr expr)
     {
         BinaryOperator @operator = expr.Operator;
@@ -131,11 +156,15 @@ class TypeInferencePassVisitor : IExprVisitor
                 break;
 
             case BinaryOperator.Plus or BinaryOperator.Minus or BinaryOperator.Star
-                or BinaryOperator.Slash or BinaryOperator.Percent
-                or BinaryOperator.Less or BinaryOperator.Greater
-                or BinaryOperator.LessEqual or BinaryOperator.GreaterEqual:
+                or BinaryOperator.Slash or BinaryOperator.Percent:
                 if (left is IntType && right is IntType)
                     return IntType.Instance;
+                break;
+
+            case BinaryOperator.Less or BinaryOperator.Greater
+                or BinaryOperator.LessEqual or BinaryOperator.GreaterEqual:
+                if (left is IntType && right is IntType)
+                    return BoolType.Instance;
                 break;
 
             case BinaryOperator.Or or BinaryOperator.And:
