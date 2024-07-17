@@ -9,15 +9,19 @@ public class TflVsCs
     private const int N = 80;
     private const string CODE = """
     func main(n: int): int {
-        fib(0, 1, n)
-    }
+        let a = 0;
+        let b = 1;
 
-    func fib(a: int, b: int, n: int): int {
-        if n <= 0 {
-            a
-        } else {
-            fib(b, a + b, n - 1)
-        }
+        while n > 0 {
+            let sum = a + b;
+
+            a = b;
+            b = sum;
+
+            n = n - 1;
+        };
+
+        a
     }
     """;
 
@@ -40,15 +44,20 @@ public class TflVsCs
 
     static long Fibonacci(long n)
     {
-        return FibonacciInternal(0, 1, n);
-    }
+        long a = 0;
+        long b = 1;
 
-    static long FibonacciInternal(long a, long b, long n)
-    {
-        if (n <= 0)
-            return a;
-        else
-            return FibonacciInternal(b, a + b, n - 1);
+        while (n > 0)
+        {
+            long sum = a + b;
+
+            a = b;
+            b = sum;
+
+            n--;
+        };
+
+        return a;
     }
 }
 
