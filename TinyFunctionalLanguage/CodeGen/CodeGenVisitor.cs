@@ -34,22 +34,20 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
 
     public void Visit(IfExpr expr)
     {
-        bool hasElse = expr.FalseBlock != null;
-
         Label endLabel = generator.DefineLabel();
-        Label elseLabel = hasElse ? generator.DefineLabel() : endLabel;
+        Label elseLabel = generator.DefineLabel();
 
         expr.Condition.Accept(this);
         generator.Emit(OpCodes.Brfalse, elseLabel);
 
         expr.TrueBlock.Accept(this);
+        generator.Emit(OpCodes.Br, endLabel);
 
-        if (hasElse)
-        {
-            generator.Emit(OpCodes.Br, endLabel);
-            generator.MarkLabel(elseLabel);
+        generator.MarkLabel(elseLabel);
+        if (expr.FalseBlock != null)
             expr.FalseBlock!.Accept(this);
-        }
+        else
+            MakeUnit();
 
         generator.MarkLabel(endLabel);
     }
@@ -85,6 +83,23 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
             arg.Accept(this);
 
         generator.Emit(OpCodes.Call, func.Method!);
+    }
+
+    public void Visit(AssignmentExpr expr)
+    {
+        if (expr.Left is not IdentExpr { Reference: IVariableLike var })
+            throw new InvalidOperationException("Only variables can be assigned to");
+
+        expr.Right.Accept(this);
+
+        if (var is Variable variable)
+            generator.Emit(OpCodes.Stloc, variable.Local!);
+        else if (var is Argument argument)
+            generator.Emit(OpCodes.Starg, (short)argument.Index!);
+        else
+            throw new InvalidOperationException("Unknown binding type");
+
+        MakeUnit();
     }
 
     public void Generate(FunctionDecl funcDecl)

@@ -3,9 +3,15 @@ func main(n: int): int {
 }
 
 func fib(a: int, b: int, n: int): int {
-    if n <= 0 {
+    let x = if n <= 0 {
         a
     } else {
         fib(b, a + b, n - 1)
-    }
+    };
+
+    if x > 1000000 {
+        x = 1000000;
+    };
+
+    x
 }

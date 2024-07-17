@@ -100,6 +100,23 @@ class TypeInferencePassVisitor : IExprVisitor
         expr.Type = func.ReturnType;
     }
 
+    public void Visit(AssignmentExpr expr)
+    {
+        expr.Left.Accept(this);
+        expr.Right.Accept(this);
+
+        if (expr.Left is not IdentExpr varIdent)
+            throw new LanguageException("It's only possible to assign to variables", expr.Left.Span);
+
+        if (varIdent.Reference is not IVariableLike var)
+            throw new LanguageException($"{varIdent.Ident.Name} doesn't refer to a variable", expr.Span);
+
+        if (expr.Right.Type != var.Type)
+            throw new LanguageException($"A value of type {expr.Right.Type} cannot be assigned to variable of type {var.Type}", expr.Span);
+
+        expr.Type = UnitType.Instance;
+    }
+
     static IType GetBinaryOpResultType(BinaryOpExpr expr)
     {
         BinaryOperator @operator = expr.Operator;

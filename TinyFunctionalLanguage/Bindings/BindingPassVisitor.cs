@@ -59,6 +59,12 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
             arg.Accept(this);
     }
 
+    public void Visit(AssignmentExpr expr)
+    {
+        expr.Left.Accept(this);
+        expr.Right.Accept(this);
+    }
+
     public void Visit(FunctionDecl decl)
     {
         scope.Push();

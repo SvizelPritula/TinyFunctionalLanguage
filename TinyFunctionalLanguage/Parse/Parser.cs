@@ -62,7 +62,7 @@ public partial class Parser
             case TokenType.Let:
                 return ParseLet();
             default:
-                return ParseExpression();
+                return ParseAssignmentOrExpression();
         }
     }
 
@@ -77,5 +77,21 @@ public partial class Parser
 
         Point end = tokenizer.LastTokenEnd;
         return new LetExpr(name, value, new(start, end));
+    }
+
+    IExpression ParseAssignmentOrExpression()
+    {
+        Point start = tokenizer.NextTokenStart;
+        IExpression left = ParseExpression();
+
+        if (tokenizer.Peek().Type != TokenType.Equal)
+            return left;
+
+        tokenizer.Next();
+
+        IExpression right = ParseExpression();
+        Point end = tokenizer.LastTokenEnd;
+
+        return new AssignmentExpr(left, right, new(start, end));
     }
 }
