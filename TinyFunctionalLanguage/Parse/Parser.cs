@@ -34,11 +34,11 @@ public partial class Parser
         Point start = tokenizer.NextTokenStart;
 
         Expect(TokenType.Func);
-        IdentExpr name = ParseIdent();
+        Ident name = ParseIdent();
 
         List<ArgumentDecl> arguments = ParseParenList(() =>
         {
-            IdentExpr name = ParseIdent();
+            Ident name = ParseIdent();
             Expect(TokenType.Colon);
             ITypeName type = ParseTypeName();
 
@@ -71,7 +71,7 @@ public partial class Parser
         Point start = tokenizer.NextTokenStart;
 
         Expect(TokenType.Let);
-        IdentExpr name = ParseIdent();
+        Ident name = ParseIdent();
         Expect(TokenType.Equal);
         IExpression value = ParseExpression();
 

@@ -5,7 +5,7 @@ namespace TinyFunctionalLanguage.Parse;
 
 public partial class Parser
 {
-    IdentExpr ParseIdent()
+    Ident ParseIdent()
     {
         Point start = tokenizer.NextTokenStart;
         Token nameToken = tokenizer.Next();
@@ -14,7 +14,7 @@ public partial class Parser
         if (nameToken.Type != TokenType.Ident)
             throw new LanguageException($"Expected an identifier, got a {nameToken.Type} token", new(start, end));
 
-        return new IdentExpr((string)nameToken.Content!, new(start, end));
+        return new((string)nameToken.Content!, new(start, end));
     }
 
     ITypeName ParseTypeName()

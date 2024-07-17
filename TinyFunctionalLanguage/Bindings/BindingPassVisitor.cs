@@ -37,10 +37,10 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
 
     public void Visit(IdentExpr expr)
     {
-        if (scope.TryGet(expr.Name, out var reference))
+        if (scope.TryGet(expr.Ident.Name, out var reference))
             expr.Reference = reference;
         else
-            throw new LanguageException($"There is no variable named {expr.Name} in the current scope.", expr.Span);
+            throw new LanguageException($"There is no variable named {expr.Ident.Name} in the current scope.", expr.Span);
     }
 
     public void Visit(LetExpr expr)
@@ -48,8 +48,8 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
         expr.Value.Accept(this);
 
         Variable variable = new();
-        scope.Insert(expr.Name.Name, variable);
-        expr.Name.Reference = variable;
+        scope.Insert(expr.Ident.Name, variable);
+        expr.Reference = variable;
     }
 
     public void Visit(CallExpr expr)
@@ -63,10 +63,10 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
     {
         scope.Push();
 
-        Function func = (Function)decl.Name.Reference!;
+        Function func = decl.Reference!;
 
         foreach (var (arg, argDecl) in func.Arguments.Zip(decl.Arguments))
-            scope.Insert(argDecl.Name.Name, arg);
+            scope.Insert(argDecl.Ident.Name, arg);
 
         decl.Block.Accept(this);
 

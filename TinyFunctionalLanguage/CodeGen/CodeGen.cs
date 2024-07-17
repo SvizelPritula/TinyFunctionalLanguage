@@ -16,10 +16,10 @@ public static class CodeGen
 
         foreach (FunctionDecl decl in program.Functions)
         {
-            var func = (Function)decl.Name.Reference!;
+            var func = decl.Reference!;
 
             var method = module.DefineGlobalMethod(
-                decl.Name.Name,
+                decl.Ident.Name,
                 MethodAttributes.Public | MethodAttributes.Static,
                 func.ReturnType!.ClrType,
                 func.Arguments.Select(a => a.Type!.ClrType!).ToArray()
@@ -30,7 +30,7 @@ public static class CodeGen
 
         foreach (FunctionDecl decl in program.Functions)
         {
-            var func = (Function)decl.Name.Reference!;
+            var func = decl.Reference!;
 
             var generator = func.Method!.GetILGenerator();
             new CodeGenVisitor(generator).Generate(decl);

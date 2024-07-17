@@ -16,15 +16,15 @@ public static class BindingPass
 
                 foreach (ArgumentDecl argDecl in functionDecl.Arguments)
                 {
-                    Argument arg = new(argDecl.Name.Name);
-                    argDecl.Name.Reference = arg;
+                    Argument arg = new(argDecl.Ident.Name);
+                    argDecl.Reference = arg;
                     arguments.Add(arg);
                 }
 
                 Function function = new(arguments);
 
-                functionDecl.Name.Reference = function;
-                scope.Insert(functionDecl.Name.Name, function);
+                functionDecl.Reference = function;
+                scope.Insert(functionDecl.Ident.Name, function);
             }
         }
 

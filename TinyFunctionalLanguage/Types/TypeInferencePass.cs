@@ -18,7 +18,7 @@ public static class TypeInferencePass
 
     static void SetTypesForFunction(FunctionDecl decl)
     {
-        var func = (Function)decl.Name.Reference!;
+        var func = decl.Reference!;
         func.ReturnType = GetTypeFromTypeName(decl.ReturnType);
 
         foreach (var (arg, argDecl) in func.Arguments.Zip(decl.Arguments))

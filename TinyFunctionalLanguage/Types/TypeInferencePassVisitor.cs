@@ -60,15 +60,14 @@ class TypeInferencePassVisitor : IExprVisitor
         if (expr.Reference is IVariableLike variable)
             expr.Type = variable.Type;
         else
-            throw new LanguageException($"{expr.Name} doesn't refer to a variable", expr.Span);
+            throw new LanguageException($"{expr.Ident.Name} doesn't refer to a variable", expr.Span);
     }
 
     public void Visit(LetExpr expr)
     {
-        expr.Name.Accept(this);
         expr.Value.Accept(this);
 
-        ((Variable)expr.Name.Reference!).Type = expr.Value.Type;
+        expr.Reference!.Type = expr.Value.Type;
         expr.Type = UnitType.Instance;
     }
 
@@ -78,7 +77,7 @@ class TypeInferencePassVisitor : IExprVisitor
             throw new LanguageException("It's only possible to call named functions", expr.Function.Span);
 
         if (funcIdent.Reference is not Function func)
-            throw new LanguageException($"{funcIdent.Name} doesn't refer to a function", expr.Span);
+            throw new LanguageException($"{funcIdent.Ident.Name} doesn't refer to a function", expr.Span);
 
         foreach (var argExpr in expr.Arguments)
             argExpr.Accept(this);
@@ -154,13 +153,13 @@ class TypeInferencePassVisitor : IExprVisitor
 
     public void Visit(FunctionDecl decl)
     {
-        var func = (Function)decl.Name.Reference!;
+        var func = decl.Reference!;
 
         decl.Block.Accept(this);
 
         if (decl.Block.Type != func.ReturnType)
             throw new LanguageException(
-                $"The {decl.Name.Name} function should return {func.ReturnType} but returns {decl.Block.Type}",
+                $"The {decl.Ident.Name} function should return {func.ReturnType} but returns {decl.Block.Type}",
                 decl.Block.Span
             );
     }

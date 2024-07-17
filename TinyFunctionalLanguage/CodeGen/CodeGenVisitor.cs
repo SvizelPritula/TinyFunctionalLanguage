@@ -66,7 +66,7 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
 
     public void Visit(LetExpr expr)
     {
-        var variable = (Variable)expr.Name.Reference!;
+        var variable = expr.Reference!;
         var local = generator.DeclareLocal(variable.Type!.ClrType!);
         variable.Local = local;
 
@@ -89,7 +89,7 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
 
     public void Generate(FunctionDecl funcDecl)
     {
-        Function func = (Function)funcDecl.Name.Reference!;
+        Function func = funcDecl.Reference!;
 
         for (short i = 0; i < func.Arguments.Count; i++)
             func.Arguments[i].Index = i;
