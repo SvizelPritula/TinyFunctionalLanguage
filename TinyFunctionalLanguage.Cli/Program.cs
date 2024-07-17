@@ -10,8 +10,8 @@ try
     var code = Console.In.ReadToEnd();
     var module = Compiler.Compile(code);
 
-    var func = module.GetMethod("main")!.CreateDelegate<Func<long, long>>();
-    Console.WriteLine(func(80));
+    var func = module.GetMethod("main")!.CreateDelegate<Func<long>>();
+    Console.WriteLine(func());
 }
 catch (LanguageException ex)
 {
