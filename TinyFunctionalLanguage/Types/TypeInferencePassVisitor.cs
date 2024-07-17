@@ -100,7 +100,7 @@ class TypeInferencePassVisitor : IExprVisitor
         {
             if (arg.Type != argExpr.Type)
                 throw new LanguageException(
-                    $"The argument {arg.Name} has type {arg.Type}, but a value of type {arg.Type} is given",
+                    $"The argument {arg.Name} has type {arg.Type}, but a value of type {argExpr.Type} is given",
                     argExpr.Span
                 );
         }
@@ -152,19 +152,19 @@ class TypeInferencePassVisitor : IExprVisitor
         {
             case BinaryOperator.Equal or BinaryOperator.NotEqual:
                 if (left == right && left.IsPrimitive)
-                    return left;
-                break;
-
-            case BinaryOperator.Plus or BinaryOperator.Minus or BinaryOperator.Star
-                or BinaryOperator.Slash or BinaryOperator.Percent:
-                if (left is IntType && right is IntType)
-                    return IntType.Instance;
+                    return BoolType.Instance;
                 break;
 
             case BinaryOperator.Less or BinaryOperator.Greater
                 or BinaryOperator.LessEqual or BinaryOperator.GreaterEqual:
                 if (left is IntType && right is IntType)
                     return BoolType.Instance;
+                break;
+
+            case BinaryOperator.Plus or BinaryOperator.Minus or BinaryOperator.Star
+                or BinaryOperator.Slash or BinaryOperator.Percent:
+                if (left is IntType && right is IntType)
+                    return IntType.Instance;
                 break;
 
             case BinaryOperator.Or or BinaryOperator.And:

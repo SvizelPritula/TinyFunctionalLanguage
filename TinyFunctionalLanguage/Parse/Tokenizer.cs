@@ -93,9 +93,6 @@ public class Tokenizer
 
             if (IsCharAnd(c, char.IsAsciiDigit))
             {
-                if (overflow)
-                    continue;
-
                 int digit = c - '0';
 
                 value *= 10;
