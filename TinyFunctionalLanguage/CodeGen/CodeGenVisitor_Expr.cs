@@ -1,7 +1,5 @@
-using System.Reflection;
 using System.Reflection.Emit;
 using TinyFunctionalLanguage.Ast;
-using TinyFunctionalLanguage.Bindings;
 using TinyFunctionalLanguage.Types;
 
 namespace TinyFunctionalLanguage.CodeGen;

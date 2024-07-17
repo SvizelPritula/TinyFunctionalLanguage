@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Reflection.Emit;
 using TinyFunctionalLanguage.Ast;
 using TinyFunctionalLanguage.Bindings;

@@ -1,4 +1,3 @@
-using TinyFunctionalLanguage.Bindings;
 using TinyFunctionalLanguage.Parse;
 using TinyFunctionalLanguage.Types;
 
