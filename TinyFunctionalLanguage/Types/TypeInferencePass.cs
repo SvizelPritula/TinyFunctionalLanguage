@@ -1,4 +1,5 @@
 using TinyFunctionalLanguage.Ast;
+using TinyFunctionalLanguage.Errors;
 
 namespace TinyFunctionalLanguage.Types;
 
@@ -12,7 +13,7 @@ public static class TypeInferencePass
         TypeInferencePassVisitor visitor = new();
 
         foreach (FunctionDecl function in program.Functions)
-            visitor.Process(function);
+            ProcessFunction(function);
     }
 
     static void SetTypesForFunction(FunctionDecl decl)
@@ -23,6 +24,19 @@ public static class TypeInferencePass
         foreach (var (arg, argDecl) in func.Arguments.Zip(decl.Arguments))
             arg.Type = GetTypeFromTypeName(argDecl.Type);
 
+    }
+
+    static void ProcessFunction(FunctionDecl decl)
+    {
+        var func = decl.Reference!;
+
+        decl.Block.Accept(new TypeInferencePassVisitor());
+
+        if (decl.Block.Type != func.ReturnType)
+            throw new LanguageException(
+                $"The {decl.Ident.Name} function should return {func.ReturnType} but returns {decl.Block.Type}",
+                decl.Block.Span
+            );
     }
 
     static IType GetTypeFromTypeName(ITypeName name)

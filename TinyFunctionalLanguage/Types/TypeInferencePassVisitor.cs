@@ -196,17 +196,4 @@ class TypeInferencePassVisitor : IExprVisitor
 
         throw new LanguageException($"The {@operator} operator is not defined for type {type}", expr.Span);
     }
-
-    public void Process(FunctionDecl decl)
-    {
-        var func = decl.Reference!;
-
-        decl.Block.Accept(this);
-
-        if (decl.Block.Type != func.ReturnType)
-            throw new LanguageException(
-                $"The {decl.Ident.Name} function should return {func.ReturnType} but returns {decl.Block.Type}",
-                decl.Block.Span
-            );
-    }
 }
