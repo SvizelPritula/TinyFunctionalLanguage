@@ -1,8 +1,63 @@
-func main(): Node {
-    Node(5, Node(8, Node(3, null Node)))
-}
-
 struct Node {
     value: int;
-    next: Node;
+    next: List;
+}
+
+struct List {
+    has_root: bool;
+    root: Node;
+}
+
+func empty(): List {
+    List(false, null Node)
+}
+
+func add(list: List, value: int): List {
+    List(true, Node(value, list))
+}
+
+struct ExtractResult {
+    value: int;
+    rest: List;
+}
+
+func extract_max(node: Node): ExtractResult {
+    if !node.next.has_root {
+        ExtractResult(node.value, empty())
+    } else {
+        let result = extract_max(node.next.root);
+
+        if node.value > result.value {
+            ExtractResult(node.value, node.next)
+        } else {
+            ExtractResult(result.value, add(result.rest, node.value))
+        }
+    }
+}
+
+func sort(list: List): List {
+    let sorted = empty();
+
+    while list.has_root {
+        let result = extract_max(list.root);
+        list = result.rest;
+        sorted = add(sorted, result.value);
+    };
+
+    sorted
+}
+
+func main(): List {
+    let list = empty();
+
+    list = add(list, 1);
+    list = add(list, 4);
+    list = add(list, 6);
+    list = add(list, 2);
+    list = add(list, 3);
+    list = add(list, 5);
+    list = add(list, 0);
+    list = add(list, 7);
+
+    sort(list)
 }
