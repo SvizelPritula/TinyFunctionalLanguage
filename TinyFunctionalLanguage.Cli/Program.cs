@@ -19,6 +19,12 @@ catch (LanguageException ex)
 
 void Dump(object? value, int indent = 1)
 {
+    if (value is null)
+    {
+        Console.WriteLine("null");
+        return;
+    }
+
     var indentStr = new string(' ', indent * 2);
     Console.WriteLine(value);
 

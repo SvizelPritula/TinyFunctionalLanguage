@@ -166,6 +166,7 @@ public class Tokenizer
         ["unit"] = TokenType.Unit,
         ["true"] = TokenType.True,
         ["false"] = TokenType.False,
+        ["null"] = TokenType.Null,
     };
 
     static readonly Dictionary<char, TokenType> oneCharPuncts = new()

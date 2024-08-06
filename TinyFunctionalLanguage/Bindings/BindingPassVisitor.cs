@@ -76,6 +76,11 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor, ITy
         expr.Value.Accept(this);
     }
 
+    public void Visit(NullExpr expr)
+    {
+        expr.TypeName.Accept(this);
+    }
+
     public void Visit(IntTypeName typeName) { }
     public void Visit(BoolTypeName typeName) { }
     public void Visit(UnitTypeName typeName) { }

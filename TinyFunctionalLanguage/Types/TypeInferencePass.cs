@@ -47,7 +47,7 @@ public static class TypeInferencePass
             );
     }
 
-    static IType GetTypeFromTypeName(ITypeName name)
+    internal static IType GetTypeFromTypeName(ITypeName name)
     {
         return name.Accept(new TypeResolverVisitor());
     }

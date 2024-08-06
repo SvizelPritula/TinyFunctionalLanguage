@@ -120,6 +120,11 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
         generator.Emit(OpCodes.Ldfld, expr.Reference!.FieldInfo!);
     }
 
+    public void Visit(NullExpr expr)
+    {
+        generator.Emit(OpCodes.Ldnull);
+    }
+
     void MakeUnit()
     {
         var local = generator.DeclareLocal(UnitType.Instance.ClrType);

@@ -1,18 +1,8 @@
-func main(): Line {
-    let a = Point(0, 0);
-    let b = a;
-    
-    b.x = 10;
-
-    Line(a, b)
+func main(): Node {
+    Node(5, Node(8, Node(3, null Node)))
 }
 
-struct Point {
-    x: int;
-    y: int;
-}
-
-struct Line {
-    from: Point;
-    to: Point;
+struct Node {
+    value: int;
+    next: Node;
 }

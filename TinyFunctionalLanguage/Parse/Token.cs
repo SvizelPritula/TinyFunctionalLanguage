@@ -18,6 +18,7 @@ public enum TokenType
     Unit,
     True,
     False,
+    Null,
 
     LeftParen,
     RightParen,

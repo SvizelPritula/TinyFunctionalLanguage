@@ -39,6 +39,9 @@ public partial class Parser
             case TokenType.If:
                 return ParseIfExpression();
 
+            case TokenType.Null:
+                return ParseNullExpression();
+
             default:
                 tokenizer.Next();
                 end = tokenizer.LastTokenEnd;
@@ -74,6 +77,17 @@ public partial class Parser
 
         Point end = tokenizer.LastTokenEnd;
         return new IfExpr(condition, trueBlock, falseBlock, new(start, end));
+    }
+
+    NullExpr ParseNullExpression()
+    {
+        Point start = tokenizer.NextTokenStart;
+
+        Expect(TokenType.Null);
+        ITypeName type = ParseTypeName();
+
+        Point end = tokenizer.LastTokenEnd;
+        return new NullExpr(type, new(start, end));
     }
 
     BlockExpr ParseBlock()

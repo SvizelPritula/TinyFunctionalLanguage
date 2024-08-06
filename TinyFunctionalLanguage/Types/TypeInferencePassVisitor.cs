@@ -158,6 +158,14 @@ class TypeInferencePassVisitor : IExprVisitor
         throw new LanguageException($"The type {type} doesn't have a member called {expr.Member.Name}", expr.Span);
     }
 
+    public void Visit(NullExpr expr)
+    {
+        expr.Type = TypeInferencePass.GetTypeFromTypeName(expr.TypeName);
+
+        if (expr.Type is not Struct)
+            throw new LanguageException($"Only a struct can be null", expr.TypeName.Span);
+    }
+
     static IType GetBinaryOpResultType(BinaryOpExpr expr)
     {
         BinaryOperator @operator = expr.Operator;

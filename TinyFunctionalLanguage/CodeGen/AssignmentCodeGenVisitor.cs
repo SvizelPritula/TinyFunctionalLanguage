@@ -61,6 +61,7 @@ class AssignmentCodeGenVisitor(ILGenerator generator, Action modify) : IExprVisi
     public void Visit(CallExpr expr) => throw BadExpr();
     public void Visit(AssignmentExpr expr) => throw BadExpr();
     public void Visit(WhileExpr expr) => throw BadExpr();
+    public void Visit(NullExpr expr) => throw BadExpr();
 
     public Exception BadExpr() => new InvalidOperationException("Only variables and fields can be assigned to");
 }
