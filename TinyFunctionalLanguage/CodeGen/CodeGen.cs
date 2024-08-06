@@ -66,7 +66,11 @@ public static class CodeGen
         var builder = @struct.TypeBuilder!;
 
         foreach (var field in @struct.Fields)
-            field.FieldInfo = builder.DefineField(field.Name, field.Type!.ClrType!, FieldAttributes.Public);
+            field.FieldInfo = builder.DefineField(
+                field.Name,
+                field.Type!.ClrType!,
+                FieldAttributes.Public | FieldAttributes.InitOnly
+            );
 
         var constructor = builder.DefineConstructor(
             MethodAttributes.Public,

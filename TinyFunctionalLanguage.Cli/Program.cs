@@ -12,7 +12,7 @@ try
 
     Console.WriteLine(result);
 
-    foreach (var field in result!.GetType().GetFields(BindingFlags.Instance))
+    foreach (var field in result!.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public))
         Console.WriteLine($"{field.Name} = {field.GetValue(result)}");
 }
 catch (LanguageException ex)
