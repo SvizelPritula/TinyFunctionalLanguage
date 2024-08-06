@@ -59,4 +59,9 @@ public static class TypeInferencePass
         public IType Visit(UnitTypeName typeName) => UnitType.Instance;
         public IType Visit(NamedTypeName typeName) => typeName.Reference!;
     }
+
+    internal static bool IsValidLeftHandSide(IExpression expr)
+    {
+        return expr is IdentExpr || (expr is MemberExpr { Value: var value } && IsValidLeftHandSide(value));
+    }
 }

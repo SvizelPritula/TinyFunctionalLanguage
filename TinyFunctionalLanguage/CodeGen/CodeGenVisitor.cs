@@ -88,17 +88,11 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
 
     public void Visit(AssignmentExpr expr)
     {
-        if (expr.Left is not IdentExpr { Reference: IVariableLike var })
-            throw new InvalidOperationException("Only variables can be assigned to");
-
-        expr.Right.Accept(this);
-
-        if (var is Variable variable)
-            generator.Emit(OpCodes.Stloc, variable.Local!);
-        else if (var is Argument argument)
-            generator.Emit(OpCodes.Starg, (short)argument.Index!);
-        else
-            throw new InvalidOperationException("Unknown binding type");
+        expr.Left.Accept(new AssignmentCodeGenVisitor(generator, () =>
+        {
+            generator.Emit(OpCodes.Pop);
+            expr.Right.Accept(this);
+        }));
 
         MakeUnit();
     }
