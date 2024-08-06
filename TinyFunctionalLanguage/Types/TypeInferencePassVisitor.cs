@@ -84,7 +84,7 @@ class TypeInferencePassVisitor : IExprVisitor
         if (expr.Function is not IdentExpr funcIdent)
             throw new LanguageException("It's only possible to call named functions", expr.Function.Span);
 
-        if (funcIdent.Reference is not Function func)
+        if (funcIdent.Reference is not IFunctionLike func)
             throw new LanguageException($"{funcIdent.Ident.Name} doesn't refer to a function", expr.Span);
 
         foreach (var argExpr in expr.Arguments)

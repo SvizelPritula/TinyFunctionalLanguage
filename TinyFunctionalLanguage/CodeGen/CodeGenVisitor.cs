@@ -75,13 +75,15 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
 
     public void Visit(CallExpr expr)
     {
-        if (expr.Function is not IdentExpr { Reference: Function func })
-            throw new InvalidOperationException("Only bound functions can be called");
-
         foreach (var arg in expr.Arguments)
             arg.Accept(this);
 
-        generator.Emit(OpCodes.Call, func.Method!);
+        if (expr.Function is IdentExpr { Reference: Function func })
+            generator.Emit(OpCodes.Call, func.MethodBuilder!);
+        else if (expr.Function is IdentExpr { Reference: Struct @struct })
+            generator.Emit(OpCodes.Newobj, @struct.ConstructorInfo!);
+        else
+            throw new InvalidOperationException("Only bound functions can be called");
     }
 
     public void Visit(AssignmentExpr expr)

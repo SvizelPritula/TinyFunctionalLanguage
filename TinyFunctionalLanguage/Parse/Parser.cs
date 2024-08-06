@@ -1,4 +1,5 @@
 using TinyFunctionalLanguage.Ast;
+using TinyFunctionalLanguage.Errors;
 
 namespace TinyFunctionalLanguage.Parse;
 
@@ -19,10 +20,27 @@ public partial class Parser
     Program ParseProgram()
     {
         List<IDeclaration> declarations = [];
+        bool endOfFile = false;
 
-        while (tokenizer.Peek().Type != TokenType.Eof)
+        while (!endOfFile)
         {
-            declarations.Add(ParseFunction());
+            switch (tokenizer.Peek().Type)
+            {
+                case TokenType.Eof:
+                    endOfFile = true;
+                    break;
+
+                case TokenType.Func:
+                    declarations.Add(ParseFunction());
+                    break;
+
+                case TokenType.Struct:
+                    declarations.Add(ParseStruct());
+                    break;
+
+                default:
+                    throw new LanguageException("Expected a func of struct declaration", new(tokenizer.NextTokenStart));
+            }
         }
 
         return new(declarations);
@@ -52,6 +70,32 @@ public partial class Parser
         Point end = tokenizer.LastTokenEnd;
 
         return new FunctionDecl(name, arguments, returnType, block, new(start, end));
+    }
+
+    StructDecl ParseStruct()
+    {
+        Point start = tokenizer.NextTokenStart;
+
+        Expect(TokenType.Struct);
+        Ident name = ParseIdent();
+
+        List<FieldDecl> fields = [];
+        Expect(TokenType.LeftBrace);
+
+        while (tokenizer.Peek().Type != TokenType.RightBrace)
+        {
+            Ident fieldName = ParseIdent();
+            Expect(TokenType.Colon);
+            ITypeName fieldType = ParseTypeName();
+            Expect(TokenType.Semi);
+
+            fields.Add(new FieldDecl(fieldName, fieldType));
+        }
+
+        Expect(TokenType.RightBrace);
+        Point end = tokenizer.LastTokenEnd;
+
+        return new StructDecl(name, fields, new(start, end));
     }
 
     IExpression ParseStatement()

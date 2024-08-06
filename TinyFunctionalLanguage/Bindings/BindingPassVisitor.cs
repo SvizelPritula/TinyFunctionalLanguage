@@ -3,7 +3,7 @@ using TinyFunctionalLanguage.Errors;
 
 namespace TinyFunctionalLanguage.Bindings;
 
-class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
+class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor, ITypeNameVisitor
 {
     public void Visit(IntLiteralExpr expr) { }
 
@@ -40,14 +40,14 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
         if (scope.TryGet(expr.Ident.Name, out var reference))
             expr.Reference = reference;
         else
-            throw new LanguageException($"There is no variable named {expr.Ident.Name} in the current scope.", expr.Span);
+            throw new LanguageException($"There is no variable of function named {expr.Ident.Name} in the current scope.", expr.Span);
     }
 
     public void Visit(LetExpr expr)
     {
         expr.Value.Accept(this);
 
-        Variable variable = new();
+        Variable variable = new(expr.Ident.Name);
         scope.Insert(expr.Ident.Name, variable);
         expr.Reference = variable;
     }
@@ -71,17 +71,20 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor
         expr.Body.Accept(this);
     }
 
-    public void Process(FunctionDecl decl)
+    public void Visit(IntTypeName typeName) { }
+    public void Visit(BoolTypeName typeName) { }
+    public void Visit(UnitTypeName typeName) { }
+
+    public void Visit(NamedTypeName typeName)
     {
-        scope.Push();
-
-        Function func = decl.Reference!;
-
-        foreach (var (arg, argDecl) in func.Arguments.Zip(decl.Arguments))
-            scope.Insert(argDecl.Ident.Name, arg);
-
-        decl.Block.Accept(this);
-
-        scope.Pop();
+        if (scope.TryGet(typeName.Ident.Name, out var reference))
+            if (reference is Struct @struct)
+                typeName.Reference = @struct;
+            else
+                throw new LanguageException($"{typeName.Ident.Name} is not a type.", typeName.Span);
+        else
+        {
+            throw new LanguageException($"There is no type named {typeName.Ident.Name} in the current scope.", typeName.Span);
+        }
     }
 }

@@ -1,48 +1,12 @@
-func main(): int {
-    prime(100_000 - 1)
+func main(): Point {
+    choose(false, Point(10, 20), Point(20, 10))
 }
 
-func fib(n: int): int {
-    let a = 0;
-    let b = 1;
-
-    while n > 0 {
-        let sum = a + b;
-
-        a = b;
-        b = sum;
-
-        n = n - 1;
-    };
-
-    a
+func choose(cond: bool, a: Point, b: Point): Point {
+    if cond { a } else { b }
 }
 
-func is_prime(n: int): bool {
-    let p = 2;
-    let composite = false;
-
-    while !composite & p * p <= n {
-        if n % p == 0 {
-            composite = true;
-        };
-
-        p = p + 1;
-    };
-
-    !composite
-}
-
-func prime(n: int): int {
-    let p = 1;
-    
-    while n >= 0 {
-        p = p + 1;
-
-        if is_prime(p) {
-            n = n - 1;
-        };
-    };
-
-    p
+struct Point {
+    x: int;
+    y: int;
 }
