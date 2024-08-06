@@ -29,7 +29,7 @@ public partial class Parser
         return left;
     }
 
-    IExpression ParseUnaryOperator()
+    IExpression ParsePrefixUnaryOperator()
     {
         Point start = tokenizer.NextTokenStart;
 
@@ -44,31 +44,48 @@ public partial class Parser
         {
             tokenizer.Next();
 
-            IExpression inner = ParseUnaryOperator();
+            IExpression inner = ParsePrefixUnaryOperator();
             Point end = tokenizer.LastTokenEnd;
 
             return new UnaryOpExpr(@operator, inner, new(start, end));
         }
         else
         {
-            return ParseCallExpression();
+            return ParsePostfixUnaryOperator();
         }
     }
 
-    IExpression ParseCallExpression()
+    IExpression ParsePostfixUnaryOperator()
     {
         Point start = tokenizer.NextTokenStart;
         IExpression inner = ParsePrimaryExpression();
 
-        while (tokenizer.Peek().Type == TokenType.LeftParen)
+        while (true)
         {
-            List<IExpression> args = ParseParenList(ParseExpression);
-            Point end = tokenizer.LastTokenEnd;
+            Point end;
 
-            inner = new CallExpr(inner, args, new(start, end));
+            switch (tokenizer.Peek().Type)
+            {
+                case TokenType.LeftParen:
+                    List<IExpression> args = ParseParenList(ParseExpression);
+                    end = tokenizer.LastTokenEnd;
+
+                    inner = new CallExpr(inner, args, new(start, end));
+                    break;
+
+                case TokenType.Dot:
+                    tokenizer.Next();
+
+                    Ident ident = ParseIdent();
+                    end = tokenizer.LastTokenEnd;
+
+                    inner = new MemberExpr(inner, ident, new(start, end));
+                    break;
+
+                default:
+                    return inner;
+            }
         }
-
-        return inner;
     }
 
     IExpression ParseOrExpression() => ParseBinaryOperatorChain(
@@ -122,7 +139,7 @@ public partial class Parser
     );
 
     IExpression ParseMultiplicationExpression() => ParseBinaryOperatorChain(
-        ParseUnaryOperator,
+        ParsePrefixUnaryOperator,
         t => t switch
         {
             TokenType.Star => BinaryOperator.Star,

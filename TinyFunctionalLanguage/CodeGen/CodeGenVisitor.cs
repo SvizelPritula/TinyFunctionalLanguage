@@ -120,6 +120,12 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
         MakeUnit();
     }
 
+    public void Visit(MemberExpr expr)
+    {
+        expr.Value.Accept(this);
+        generator.Emit(OpCodes.Ldfld, expr.Reference!.FieldInfo!);
+    }
+
     void MakeUnit()
     {
         var local = generator.DeclareLocal(UnitType.Instance.ClrType);

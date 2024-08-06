@@ -1,7 +1,6 @@
-using System.Text.Json;
-
 using TinyFunctionalLanguage.Errors;
 using TinyFunctionalLanguage;
+using System.Reflection;
 
 try
 {
@@ -11,7 +10,9 @@ try
     var func = module.GetMethod("main")!;
     object? result = func.Invoke(null, []);
 
-    foreach (var field in result!.GetType().GetFields())
+    Console.WriteLine(result);
+
+    foreach (var field in result!.GetType().GetFields(BindingFlags.Instance))
         Console.WriteLine($"{field.Name} = {field.GetValue(result)}");
 }
 catch (LanguageException ex)

@@ -1,5 +1,6 @@
 func main(): Point {
-    choose(false, Point(10, 20), Point(20, 10))
+    let point = choose(false, Point(10, 20), Point(20, 10));
+    Point(-point.x, -point.x)
 }
 
 func choose(cond: bool, a: Point, b: Point): Point {

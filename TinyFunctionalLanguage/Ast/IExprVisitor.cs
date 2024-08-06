@@ -13,4 +13,5 @@ public interface IExprVisitor
     void Visit(CallExpr expr);
     void Visit(AssignmentExpr expr);
     void Visit(WhileExpr expr);
+    void Visit(MemberExpr expr);
 }

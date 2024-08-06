@@ -142,6 +142,25 @@ class TypeInferencePassVisitor : IExprVisitor
         expr.Type = UnitType.Instance;
     }
 
+    public void Visit(MemberExpr expr)
+    {
+        expr.Value.Accept(this);
+
+        var type = expr.Value.Type!;
+
+        if (type is Struct @struct)
+        {
+            if (@struct.Fields.Find(f => f.Name == expr.Member.Name) is Field field)
+            {
+                expr.Reference = field;
+                expr.Type = field.Type;
+                return;
+            }
+        }
+
+        throw new LanguageException($"The type {type} doesn't have a member called {expr.Member.Name}", expr.Span);
+    }
+
     static IType GetBinaryOpResultType(BinaryOpExpr expr)
     {
         BinaryOperator @operator = expr.Operator;
