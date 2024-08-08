@@ -1,19 +1,14 @@
-struct Node {
-    value: int;
-    next: List;
-}
-
 struct List {
-    has_root: bool;
-    root: Node;
+    first: int;
+    rest: List;
 }
 
 func empty(): List {
-    List(false, null Node)
+    null List
 }
 
 func add(list: List, value: int): List {
-    List(true, Node(value, list))
+    List(value, list)
 }
 
 struct ExtractResult {
@@ -21,16 +16,16 @@ struct ExtractResult {
     rest: List;
 }
 
-func extract_max(node: Node): ExtractResult {
-    if !node.next.has_root {
-        ExtractResult(node.value, empty())
+func extract_max(list: List): ExtractResult {
+    if list.rest == empty() {
+        ExtractResult(list.first, empty())
     } else {
-        let result = extract_max(node.next.root);
+        let result = extract_max(list.rest);
 
-        if node.value > result.value {
-            ExtractResult(node.value, node.next)
+        if list.first > result.value {
+            ExtractResult(list.first, list.rest)
         } else {
-            ExtractResult(result.value, add(result.rest, node.value))
+            ExtractResult(result.value, add(result.rest, list.first))
         }
     }
 }
@@ -38,8 +33,8 @@ func extract_max(node: Node): ExtractResult {
 func sort(list: List): List {
     let sorted = empty();
 
-    while list.has_root {
-        let result = extract_max(list.root);
+    while list != empty() {
+        let result = extract_max(list);
         list = result.rest;
         sorted = add(sorted, result.value);
     };
@@ -47,7 +42,7 @@ func sort(list: List): List {
     sorted
 }
 
-func main(): bool {
+func main(): List {
     let list = empty();
 
     list = add(list, 1);
@@ -55,12 +50,5 @@ func main(): bool {
     list = add(list, 4);
     list = add(list, 2);
 
-    let reference = empty();
-
-    reference = add(reference, 4);
-    reference = add(reference, 3);
-    reference = add(reference, 2);
-    reference = add(reference, 1);
-
-    sort(list) == reference
+    sort(list)
 }
