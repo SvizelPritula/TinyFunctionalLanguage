@@ -6,6 +6,7 @@ public enum TokenType
 {
     Ident,
     IntLiteral,
+    StringLiteral,
 
     If,
     Else,
@@ -16,6 +17,7 @@ public enum TokenType
     Int,
     Bool,
     Unit,
+    String,
     True,
     False,
     Null,

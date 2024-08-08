@@ -18,6 +18,15 @@ public class BoolType : IType
     public bool IsPrimitive => true;
 }
 
+public class StringType : IType
+{
+    private StringType() { }
+    public static StringType Instance { get; } = new StringType();
+
+    public Type ClrType => typeof(string);
+    public bool IsPrimitive => true;
+}
+
 public class UnitType : IType
 {
     private UnitType() { }

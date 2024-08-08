@@ -53,6 +53,7 @@ class AssignmentCodeGenVisitor(ILGenerator generator, Action modify) : IExprVisi
 
     public void Visit(IntLiteralExpr expr) => throw BadExpr();
     public void Visit(BoolLiteralExpr expr) => throw BadExpr();
+    public void Visit(StringLiteralExpr expr) => throw BadExpr();
     public void Visit(BinaryOpExpr expr) => throw BadExpr();
     public void Visit(UnaryOpExpr expr) => throw BadExpr();
     public void Visit(BlockExpr expr) => throw BadExpr();

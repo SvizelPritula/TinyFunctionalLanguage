@@ -72,7 +72,7 @@ public static class CodeGen
         MethodBuilder DefineOperator(string name)
         {
             var method = type.DefineMethod(
-                "op_Equality",
+                name,
                 MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.SpecialName,
                 typeof(bool),
                 [type, type]
@@ -195,6 +195,13 @@ public static class CodeGen
                     generator.Emit(OpCodes.Ldc_I4_0);
                     generator.Emit(OpCodes.Ceq);
                 }
+
+                break;
+
+            case StringType:
+                var methodName = invert ? "op_Inequality" : "op_Equality";
+                var method = typeof(string).GetMethod(methodName, BindingFlags.Static | BindingFlags.Public)!;
+                generator.Emit(OpCodes.Call, method);
 
                 break;
 

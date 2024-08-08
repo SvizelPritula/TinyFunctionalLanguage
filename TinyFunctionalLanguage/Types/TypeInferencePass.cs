@@ -55,6 +55,7 @@ public static class TypeInferencePass
     {
         public IType Visit(IntTypeName typeName) => IntType.Instance;
         public IType Visit(BoolTypeName typeName) => BoolType.Instance;
+        public IType Visit(StringTypeName typeName) => StringType.Instance;
         public IType Visit(UnitTypeName typeName) => UnitType.Instance;
         public IType Visit(NamedTypeName typeName) => typeName.Reference!;
     }

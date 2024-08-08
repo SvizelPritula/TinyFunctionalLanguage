@@ -8,6 +8,8 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor, ITy
 
     public void Visit(BoolLiteralExpr expr) { }
 
+    public void Visit(StringLiteralExpr expr) { }
+
     public void Visit(BinaryOpExpr expr)
     {
         expr.Left.Accept(this);
@@ -82,6 +84,7 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor, ITy
 
     public void Visit(IntTypeName typeName) { }
     public void Visit(BoolTypeName typeName) { }
+    public void Visit(StringTypeName typeName) { }
     public void Visit(UnitTypeName typeName) { }
 
     public void Visit(NamedTypeName typeName)

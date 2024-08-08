@@ -17,6 +17,11 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
         generator.Emit(expr.Value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
     }
 
+    public void Visit(StringLiteralExpr expr)
+    {
+        generator.Emit(OpCodes.Ldstr, expr.Value);
+    }
+
     public void Visit(BlockExpr expr)
     {
         foreach (IExpression statement in expr.Statements)

@@ -25,6 +25,12 @@ public partial class Parser
 
                 return new BoolLiteralExpr(token.Type == TokenType.True, new(start, end));
 
+            case TokenType.StringLiteral:
+                tokenizer.Next();
+                end = tokenizer.LastTokenEnd;
+
+                return new StringLiteralExpr((string)token.Content!, new(start, end));
+
             case TokenType.Ident:
                 Ident ident = ParseIdent();
                 return new IdentExpr(ident, ident.Span);

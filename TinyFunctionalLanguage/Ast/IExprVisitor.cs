@@ -4,6 +4,7 @@ public interface IExprVisitor
 {
     void Visit(IntLiteralExpr expr);
     void Visit(BoolLiteralExpr expr);
+    void Visit(StringLiteralExpr expr);
     void Visit(BinaryOpExpr expr);
     void Visit(UnaryOpExpr expr);
     void Visit(BlockExpr expr);

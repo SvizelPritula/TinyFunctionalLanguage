@@ -28,6 +28,7 @@ public partial class Parser
             TokenType.Int => new IntTypeName(span),
             TokenType.Bool => new BoolTypeName(span),
             TokenType.Unit => new UnitTypeName(span),
+            TokenType.String => new StringTypeName(span),
             TokenType.Ident => new NamedTypeName(new((string)nameToken.Content!, span), span),
             _ => throw new LanguageException($"Expected a type, got a {nameToken.Type} token", new(start, end)),
         };

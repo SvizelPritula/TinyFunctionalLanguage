@@ -14,3 +14,9 @@ public record class BoolLiteralExpr(bool Value, Span Span) : IExpression
     public IType? Type { get; set; } = null;
     public void Accept(IExprVisitor visitor) => visitor.Visit(this);
 }
+
+public record class StringLiteralExpr(string Value, Span Span) : IExpression
+{
+    public IType? Type { get; set; } = null;
+    public void Accept(IExprVisitor visitor) => visitor.Visit(this);
+}

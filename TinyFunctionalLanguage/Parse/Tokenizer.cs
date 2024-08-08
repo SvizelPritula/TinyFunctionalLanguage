@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace TinyFunctionalLanguage.Parse;
@@ -59,6 +60,8 @@ public class Tokenizer
             return ParseIdentOrKeyword();
         else if (char.IsAsciiDigit(first))
             return ParseIntLiteral();
+        else if (first == '"')
+            return ParseStringLiteral();
         else
             return ParsePunctuation();
     }
@@ -83,8 +86,8 @@ public class Tokenizer
         Int128 value = 0;
         Point start = reader.Point;
 
-        bool overflow = false;
-        bool badCharacters = false;
+        bool hasOverflow = false;
+        bool hasBadCharacters = false;
 
         while (true)
         {
@@ -98,11 +101,11 @@ public class Tokenizer
                 value += digit;
 
                 if (value > long.MaxValue)
-                    overflow = true;
+                    hasOverflow = true;
             }
             else if (IsCharAnd(c, char.IsLetterOrDigit))
             {
-                badCharacters = true;
+                hasBadCharacters = true;
             }
             else if (c != '_')
             {
@@ -114,13 +117,78 @@ public class Tokenizer
 
         Point end = reader.Point;
 
-        if (badCharacters)
+        if (hasBadCharacters)
             throw new LanguageException("Integer literal cannot contain letters", new(start, end));
 
-        if (overflow)
+        if (hasOverflow)
             throw new LanguageException("Literal too large to fit in 64-bit signed integer", new(start, end));
 
         return new(TokenType.IntLiteral, (long)value);
+    }
+
+    Token ParseStringLiteral()
+    {
+        StringBuilder builder = new();
+
+        Point start = reader.Point;
+        reader.Read();
+
+        char ReadOrError()
+        {
+            int c = reader.Read();
+
+            if (c < 0)
+                throw new LanguageException("String literal isn't terminated until end of file", new(start, reader.Point));
+
+            return (char)c;
+        }
+
+        while (true)
+        {
+            Point escapeStart = reader.Point;
+            char c = ReadOrError();
+
+            if (c == '\\')
+            {
+                char escape = ReadOrError();
+
+                if (stringEscapes.TryGetValue(escape, out char result))
+                {
+                    builder.Append(result);
+                }
+                else if (escape == 'u')
+                {
+                    StringBuilder charCode = new();
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        char digit = ReadOrError();
+
+                        if (char.IsAsciiHexDigit(digit))
+                            charCode.Append(digit);
+                        else
+                            throw new LanguageException("A \\u escape sequence must be followed by 4 hexadecimal characters", new(escapeStart, reader.Point));
+                    }
+
+                    int parsed = int.Parse(charCode.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                    builder.Append((char)parsed);
+                }
+                else
+                {
+                    throw new LanguageException("Invalid escape type", new(escapeStart, reader.Point));
+                }
+            }
+            else if (c == '"')
+            {
+                break;
+            }
+            else
+            {
+                builder.Append(c);
+            }
+        }
+
+        return new(TokenType.StringLiteral, builder.ToString());
     }
 
     Token ParsePunctuation()
@@ -163,6 +231,7 @@ public class Tokenizer
         ["int"] = TokenType.Int,
         ["bool"] = TokenType.Bool,
         ["unit"] = TokenType.Unit,
+        ["string"] = TokenType.String,
         ["true"] = TokenType.True,
         ["false"] = TokenType.False,
         ["null"] = TokenType.Null,
@@ -199,5 +268,17 @@ public class Tokenizer
         [('!', '=')] = TokenType.NotEqual,
         [('<', '=')] = TokenType.LessEqual,
         [('>', '=')] = TokenType.GreaterEqual,
+    };
+
+    static readonly Dictionary<char, char> stringEscapes = new()
+    {
+        ['"'] = '"',
+        ['\\'] = '\\',
+        ['/'] = '/',
+        ['b'] = '\b',
+        ['f'] = '\f',
+        ['n'] = '\n',
+        ['r'] = '\r',
+        ['t'] = '\t',
     };
 }

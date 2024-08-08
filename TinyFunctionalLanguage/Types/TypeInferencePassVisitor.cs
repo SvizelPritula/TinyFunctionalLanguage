@@ -9,6 +9,8 @@ class TypeInferencePassVisitor : IExprVisitor
 
     public void Visit(BoolLiteralExpr expr) => expr.Type = BoolType.Instance;
 
+    public void Visit(StringLiteralExpr expr) => expr.Type = StringType.Instance;
+
     public void Visit(BinaryOpExpr expr)
     {
         expr.Left.Accept(this);
