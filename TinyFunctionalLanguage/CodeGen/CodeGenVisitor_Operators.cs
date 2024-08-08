@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Reflection.Emit;
 using TinyFunctionalLanguage.Ast;
 using TinyFunctionalLanguage.Types;
@@ -8,33 +9,33 @@ partial class CodeGenVisitor : IExprVisitor
 {
     public void Visit(BinaryOpExpr expr)
     {
-        switch ((expr.Operator, expr.Left.Type))
+        switch ((expr.Operator, expr.Left.Type, expr.Right.Type))
         {
-            case (BinaryOperator.Equal, var type):
+            case (BinaryOperator.Equal, var type, var otherType) when otherType == type:
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 CodeGen.EmitEqualityCheck(generator, type!);
                 break;
 
-            case (BinaryOperator.NotEqual, var type):
+            case (BinaryOperator.NotEqual, var type, var otherType) when otherType == type:
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 CodeGen.EmitEqualityCheck(generator, type!, true);
                 break;
 
-            case (BinaryOperator.Less, IntType):
+            case (BinaryOperator.Less, IntType, IntType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Clt);
                 break;
 
-            case (BinaryOperator.Greater, IntType):
+            case (BinaryOperator.Greater, IntType, IntType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Cgt);
                 break;
 
-            case (BinaryOperator.LessEqual, IntType):
+            case (BinaryOperator.LessEqual, IntType, IntType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Cgt);
@@ -42,7 +43,7 @@ partial class CodeGenVisitor : IExprVisitor
                 generator.Emit(OpCodes.Ceq);
                 break;
 
-            case (BinaryOperator.GreaterEqual, IntType):
+            case (BinaryOperator.GreaterEqual, IntType, IntType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Clt);
@@ -50,46 +51,63 @@ partial class CodeGenVisitor : IExprVisitor
                 generator.Emit(OpCodes.Ceq);
                 break;
 
-            case (BinaryOperator.Plus, IntType):
+            case (BinaryOperator.Plus, IntType, IntType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Add_Ovf);
                 break;
 
-            case (BinaryOperator.Minus, IntType):
+            case (BinaryOperator.Minus, IntType, IntType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Sub_Ovf);
                 break;
 
-            case (BinaryOperator.Star, IntType):
+            case (BinaryOperator.Star, IntType, IntType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Mul_Ovf);
                 break;
 
-            case (BinaryOperator.Slash, IntType):
+            case (BinaryOperator.Slash, IntType, IntType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Div);
                 break;
 
-            case (BinaryOperator.Percent, IntType):
+            case (BinaryOperator.Percent, IntType, IntType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Rem);
                 break;
 
-            case (BinaryOperator.Or, BoolType):
+            case (BinaryOperator.Or, BoolType, BoolType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.Or);
                 break;
 
-            case (BinaryOperator.And, BoolType):
+            case (BinaryOperator.And, BoolType, BoolType):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
                 generator.Emit(OpCodes.And);
+                break;
+
+            case (BinaryOperator.Plus, StringType or IntType, StringType or IntType):
+                foreach (var side in new[] { expr.Left, expr.Right })
+                {
+                    side.Accept(this);
+
+                    if (side.Type is IntType)
+                    {
+                        var local = generator.DeclareLocal(side.Type.ClrType!);
+                        generator.Emit(OpCodes.Stloc, local);
+                        generator.Emit(OpCodes.Ldloca, local);
+                        generator.Emit(OpCodes.Call, intToString);
+                    }
+                }
+
+                generator.Emit(OpCodes.Call, stringConcat);
                 break;
 
             default:
@@ -117,4 +135,7 @@ partial class CodeGenVisitor : IExprVisitor
                 throw new InvalidOperationException("Unexpected operator or type");
         }
     }
+
+    static readonly MethodInfo stringConcat = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, [typeof(string), typeof(string)])!;
+    static readonly MethodInfo intToString = IntType.Instance.ClrType.GetMethod("ToString", BindingFlags.Public | BindingFlags.Instance, [])!;
 }

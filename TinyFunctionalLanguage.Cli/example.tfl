@@ -42,13 +42,34 @@ func sort(list: List): List {
     sorted
 }
 
-func main(): List {
+func concat(list: List, separator: string): string {
+    let str = "";
+
+    while list != empty() {
+        if str != "" {
+            str = str + separator;
+        };
+
+        str = str + list.first;
+        list = list.rest;
+    };
+
+    str
+}
+
+func main(): string {
     let list = empty();
 
-    list = add(list, 1);
     list = add(list, 3);
+    list = add(list, 18);
+    list = add(list, 1);
+    list = add(list, 14);
+    list = add(list, 15);
     list = add(list, 4);
-    list = add(list, 2);
+    list = add(list, 20);
+    list = add(list, 7);
 
-    sort(list)
+    let sorted = sort(list);
+
+    concat(list, ", ") + " -> " + concat(sorted, ", ")
 }

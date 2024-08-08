@@ -220,7 +220,7 @@ public class Tokenizer
     static bool IsIdentStartChar(char c) => char.IsLetter(c) || c == '_';
     static bool IsIdentChar(char c) => char.IsLetterOrDigit(c) || c == '_';
 
-    static Dictionary<string, TokenType> keywords = new()
+    static readonly Dictionary<string, TokenType> keywords = new()
     {
         ["if"] = TokenType.If,
         ["else"] = TokenType.Else,

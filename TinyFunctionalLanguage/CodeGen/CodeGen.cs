@@ -199,10 +199,7 @@ public static class CodeGen
                 break;
 
             case StringType:
-                var methodName = invert ? "op_Inequality" : "op_Equality";
-                var method = typeof(string).GetMethod(methodName, BindingFlags.Static | BindingFlags.Public)!;
-                generator.Emit(OpCodes.Call, method);
-
+                generator.Emit(OpCodes.Call, invert ? stringNotEqualOp : stringEqualOp);
                 break;
 
             case UnitType:
@@ -221,4 +218,7 @@ public static class CodeGen
                 throw new InvalidOperationException("Unexpected type");
         }
     }
+
+    static readonly MethodInfo stringEqualOp = typeof(string).GetMethod("op_Equality", BindingFlags.Static | BindingFlags.Public, [typeof(string), typeof(string)])!;
+    static readonly MethodInfo stringNotEqualOp = typeof(string).GetMethod("op_Inequality", BindingFlags.Static | BindingFlags.Public, [typeof(string), typeof(string)])!;
 }

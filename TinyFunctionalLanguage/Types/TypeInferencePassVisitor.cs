@@ -190,6 +190,8 @@ class TypeInferencePassVisitor : IExprVisitor
                 or BinaryOperator.Slash or BinaryOperator.Percent:
                 if (left is IntType && right is IntType)
                     return IntType.Instance;
+                if (left is StringType or IntType && right is StringType or IntType)
+                    return StringType.Instance;
                 break;
 
             case BinaryOperator.Or or BinaryOperator.And:
