@@ -15,37 +15,36 @@ public static class CodeGen
         var module = assembly.DefineDynamicModule(assemblyName);
 
         foreach (StructDecl decl in program.Structs)
-        {
-            var @struct = decl.Reference!;
-            var type = module.DefineType(decl.Ident.Name, TypeAttributes.Public);
-            @struct.TypeBuilder = type;
-        }
+            DefineStruct(module, decl);
+
+        foreach (FunctionDecl decl in program.Functions)
+            DefineFunction(module, decl);
 
         foreach (StructDecl decl in program.Structs)
             CompileStruct(decl);
-
-        foreach (FunctionDecl decl in program.Functions)
-        {
-            var func = decl.Reference!;
-
-            var method = module.DefineGlobalMethod(
-                decl.Ident.Name,
-                MethodAttributes.Public | MethodAttributes.Static,
-                func.ReturnType!.ClrType,
-                func.Arguments.Select(a => a.Type!.ClrType!).ToArray()
-            );
-
-            foreach (var (arg, idx) in @func.Arguments.Select((f, i) => (f, i)))
-                method.DefineParameter(idx, ParameterAttributes.None, arg.Name);
-
-            func.MethodBuilder = method;
-        }
 
         foreach (FunctionDecl decl in program.Functions)
             CompileFunction(decl);
 
         module.CreateGlobalFunctions();
         return module;
+    }
+
+    static void DefineFunction(ModuleBuilder module, FunctionDecl decl)
+    {
+        var func = decl.Reference!;
+
+        var method = module.DefineGlobalMethod(
+            decl.Ident.Name,
+            MethodAttributes.Public | MethodAttributes.Static,
+            func.ReturnType!.ClrType,
+            func.Arguments.Select(a => a.Type!.ClrType!).ToArray()
+        );
+
+        foreach (var (arg, idx) in @func.Arguments.Select((f, i) => (f, i)))
+            method.DefineParameter(idx, ParameterAttributes.None, arg.Name);
+
+        func.MethodBuilder = method;
     }
 
     static void CompileFunction(FunctionDecl decl)
@@ -60,6 +59,13 @@ public static class CodeGen
         generator.Emit(OpCodes.Ret);
     }
 
+    static void DefineStruct(ModuleBuilder module, StructDecl decl)
+    {
+        var @struct = decl.Reference!;
+        var type = module.DefineType(decl.Ident.Name, TypeAttributes.Public);
+        @struct.TypeBuilder = type;
+    }
+
     static void CompileStruct(StructDecl decl)
     {
         var @struct = decl.Reference!;
@@ -71,6 +77,16 @@ public static class CodeGen
                 field.Type!.ClrType!,
                 FieldAttributes.Public | FieldAttributes.InitOnly
             );
+
+        CreateConstructor(decl);
+
+        builder.CreateType();
+    }
+
+    static void CreateConstructor(StructDecl decl)
+    {
+        var @struct = decl.Reference!;
+        var builder = @struct.TypeBuilder!;
 
         var constructor = builder.DefineConstructor(
             MethodAttributes.Public,
@@ -92,7 +108,5 @@ public static class CodeGen
         }
 
         generator.Emit(OpCodes.Ret);
-
-        builder.CreateType();
     }
 }
