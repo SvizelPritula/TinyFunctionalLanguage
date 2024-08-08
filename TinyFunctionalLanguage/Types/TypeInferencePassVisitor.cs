@@ -175,7 +175,7 @@ class TypeInferencePassVisitor : IExprVisitor
         switch (@operator)
         {
             case BinaryOperator.Equal or BinaryOperator.NotEqual:
-                if (left == right && left.IsPrimitive)
+                if (left == right)
                     return BoolType.Instance;
                 break;
 

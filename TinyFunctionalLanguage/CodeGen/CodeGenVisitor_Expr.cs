@@ -10,34 +10,16 @@ partial class CodeGenVisitor : IExprVisitor
     {
         switch ((expr.Operator, expr.Left.Type))
         {
-            case (BinaryOperator.Equal, IntType or BoolType):
+            case (BinaryOperator.Equal, var type):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
-                generator.Emit(OpCodes.Ceq);
+                CodeGen.EmitEqualityCheck(generator, type!);
                 break;
 
-            case (BinaryOperator.NotEqual, IntType or BoolType):
+            case (BinaryOperator.NotEqual, var type):
                 expr.Left.Accept(this);
                 expr.Right.Accept(this);
-                generator.Emit(OpCodes.Ceq);
-                generator.Emit(OpCodes.Ldc_I4_0);
-                generator.Emit(OpCodes.Ceq);
-                break;
-
-            case (BinaryOperator.Equal, UnitType):
-                expr.Left.Accept(this);
-                expr.Right.Accept(this);
-                generator.Emit(OpCodes.Pop);
-                generator.Emit(OpCodes.Pop);
-                generator.Emit(OpCodes.Ldc_I4_1);
-                break;
-
-            case (BinaryOperator.NotEqual, UnitType):
-                expr.Left.Accept(this);
-                expr.Right.Accept(this);
-                generator.Emit(OpCodes.Pop);
-                generator.Emit(OpCodes.Pop);
-                generator.Emit(OpCodes.Ldc_I4_0);
+                CodeGen.EmitEqualityCheck(generator, type!, true);
                 break;
 
             case (BinaryOperator.Less, IntType):

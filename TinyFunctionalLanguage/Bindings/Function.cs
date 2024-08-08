@@ -22,6 +22,8 @@ public record class Struct(List<Field> Fields) : IFunctionLike, IType
 {
     public TypeBuilder? TypeBuilder { get; set; }
     public ConstructorInfo? ConstructorInfo { get; set; }
+    public MethodBuilder? EqualOp { get; set; }
+    public MethodBuilder? NotEqualOp { get; set; }
 
     public Type? ClrType => TypeBuilder;
     public bool IsPrimitive => false;

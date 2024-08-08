@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using TinyFunctionalLanguage.Ast;
 using TinyFunctionalLanguage.Bindings;
+using TinyFunctionalLanguage.Types;
 
 namespace TinyFunctionalLanguage.CodeGen;
 
@@ -64,6 +65,24 @@ public static class CodeGen
         var @struct = decl.Reference!;
         var type = module.DefineType(decl.Ident.Name, TypeAttributes.Public);
         @struct.TypeBuilder = type;
+
+        @struct.EqualOp = DefineOperator("op_Equality");
+        @struct.NotEqualOp = DefineOperator("op_Inequality");
+
+        MethodBuilder DefineOperator(string name)
+        {
+            var method = type.DefineMethod(
+                "op_Equality",
+                MethodAttributes.Public | MethodAttributes.Static | MethodAttributes.SpecialName,
+                typeof(bool),
+                [type, type]
+            );
+
+            method.DefineParameter(0, ParameterAttributes.None, "lhs");
+            method.DefineParameter(0, ParameterAttributes.None, "rhs");
+
+            return method;
+        }
     }
 
     static void CompileStruct(StructDecl decl)
@@ -79,6 +98,7 @@ public static class CodeGen
             );
 
         CreateConstructor(decl);
+        CompileEqualityCheck(decl);
 
         builder.CreateType();
     }
@@ -108,5 +128,90 @@ public static class CodeGen
         }
 
         generator.Emit(OpCodes.Ret);
+    }
+
+    static void CompileEqualityCheck(StructDecl decl)
+    {
+        var @struct = decl.Reference!;
+
+        var equal = @struct.EqualOp!;
+        var generator = equal.GetILGenerator();
+
+        var trueLabel = generator.DefineLabel();
+        var falseLabel = generator.DefineLabel();
+
+        generator.Emit(OpCodes.Ldarg_0);
+        generator.Emit(OpCodes.Ldarg_1);
+        generator.Emit(OpCodes.Ceq);
+        generator.Emit(OpCodes.Brtrue, trueLabel);
+
+        generator.Emit(OpCodes.Ldarg_0);
+        generator.Emit(OpCodes.Brfalse, falseLabel);
+
+        generator.Emit(OpCodes.Ldarg_1);
+        generator.Emit(OpCodes.Brfalse, falseLabel);
+
+        foreach (var field in @struct.Fields)
+        {
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, field.FieldInfo!);
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Ldfld, field.FieldInfo!);
+
+            EmitEqualityCheck(generator, field.Type!);
+
+            generator.Emit(OpCodes.Brfalse, falseLabel);
+        }
+
+        generator.MarkLabel(trueLabel);
+        generator.Emit(OpCodes.Ldc_I4_1);
+        generator.Emit(OpCodes.Ret);
+
+        generator.MarkLabel(falseLabel);
+        generator.Emit(OpCodes.Ldc_I4_0);
+        generator.Emit(OpCodes.Ret);
+
+        var notEqual = @struct.NotEqualOp!;
+        var notEqualGenerator = notEqual.GetILGenerator();
+
+        notEqualGenerator.Emit(OpCodes.Ldarg_0);
+        notEqualGenerator.Emit(OpCodes.Ldarg_1);
+        notEqualGenerator.Emit(OpCodes.Call, equal);
+
+        notEqualGenerator.Emit(OpCodes.Ldc_I4_0);
+        notEqualGenerator.Emit(OpCodes.Ceq);
+        notEqualGenerator.Emit(OpCodes.Ret);
+    }
+
+    internal static void EmitEqualityCheck(ILGenerator generator, IType type, bool invert = false)
+    {
+        switch (type)
+        {
+            case IntType or BoolType:
+                generator.Emit(OpCodes.Ceq);
+
+                if (invert)
+                {
+                    generator.Emit(OpCodes.Ldc_I4_0);
+                    generator.Emit(OpCodes.Ceq);
+                }
+
+                break;
+
+            case UnitType:
+                generator.Emit(OpCodes.Pop);
+                generator.Emit(OpCodes.Pop);
+                generator.Emit(invert ? OpCodes.Ldc_I4_0 : OpCodes.Ldc_I4_1);
+
+                break;
+
+            case Struct { EqualOp: var equal, NotEqualOp: var notEqual }:
+                generator.Emit(OpCodes.Call, invert ? notEqual! : equal!);
+
+                break;
+
+            default:
+                throw new InvalidOperationException("Unexpected type");
+        }
     }
 }

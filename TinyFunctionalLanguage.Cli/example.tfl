@@ -47,17 +47,20 @@ func sort(list: List): List {
     sorted
 }
 
-func main(): List {
+func main(): bool {
     let list = empty();
 
     list = add(list, 1);
-    list = add(list, 4);
-    list = add(list, 6);
-    list = add(list, 2);
     list = add(list, 3);
-    list = add(list, 5);
-    list = add(list, 0);
-    list = add(list, 7);
+    list = add(list, 4);
+    list = add(list, 2);
 
-    sort(list)
+    let reference = empty();
+
+    reference = add(reference, 4);
+    reference = add(reference, 3);
+    reference = add(reference, 2);
+    reference = add(reference, 1);
+
+    sort(list) == reference
 }
