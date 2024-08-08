@@ -1,5 +1,4 @@
 using TinyFunctionalLanguage.Ast;
-using TinyFunctionalLanguage.Errors;
 
 namespace TinyFunctionalLanguage.Bindings;
 
