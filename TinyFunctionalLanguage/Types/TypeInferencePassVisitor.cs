@@ -203,12 +203,17 @@ class TypeInferencePassVisitor : IExprVisitor
                     return BoolType.Instance;
                 break;
 
-            case BinaryOperator.Plus or BinaryOperator.Minus or BinaryOperator.Star
-                or BinaryOperator.Slash or BinaryOperator.Percent:
+            case BinaryOperator.Plus:
                 if (left is IntType && right is IntType)
                     return IntType.Instance;
                 if (left is StringType or IntType && right is StringType or IntType)
                     return StringType.Instance;
+                break;
+
+            case BinaryOperator.Minus or BinaryOperator.Star
+                or BinaryOperator.Slash or BinaryOperator.Percent:
+                if (left is IntType && right is IntType)
+                    return IntType.Instance;
                 break;
 
             case BinaryOperator.Or or BinaryOperator.And:
