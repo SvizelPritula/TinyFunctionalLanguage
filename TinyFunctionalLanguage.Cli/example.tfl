@@ -47,10 +47,10 @@ func concat(list: List, separator: string): string {
 
     while list != empty() {
         if str != "" {
-            str = str + separator;
+            str += separator;
         };
 
-        str = str + list.first;
+        str += list.first;
         list = list.rest;
     };
 

@@ -95,8 +95,51 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
     {
         expr.Left.Accept(new AssignmentCodeGenVisitor(generator, () =>
         {
-            generator.Emit(OpCodes.Pop);
-            expr.Right.Accept(this);
+            switch (expr.Operator)
+            {
+                case AssignmentOperator.Set:
+                    generator.Emit(OpCodes.Pop);
+                    expr.Right.Accept(this);
+                    break;
+
+                case AssignmentOperator.Plus when expr.Left.Type is IntType:
+                    expr.Right.Accept(this);
+                    generator.Emit(OpCodes.Add_Ovf);
+                    break;
+                case AssignmentOperator.Minus:
+                    expr.Right.Accept(this);
+                    generator.Emit(OpCodes.Sub_Ovf);
+                    break;
+                case AssignmentOperator.Star:
+                    expr.Right.Accept(this);
+                    generator.Emit(OpCodes.Mul_Ovf);
+                    break;
+                case AssignmentOperator.Slash:
+                    expr.Right.Accept(this);
+                    generator.Emit(OpCodes.Div);
+                    break;
+                case AssignmentOperator.Percent:
+                    expr.Right.Accept(this);
+                    generator.Emit(OpCodes.Rem);
+                    break;
+
+                case AssignmentOperator.And:
+                    expr.Right.Accept(this);
+                    generator.Emit(OpCodes.And);
+                    break;
+                case AssignmentOperator.Or:
+                    expr.Right.Accept(this);
+                    generator.Emit(OpCodes.Or);
+                    break;
+
+                case AssignmentOperator.Plus when expr.Left.Type is StringType:
+                    expr.Right.Accept(this);
+                    ConvertToString(expr.Right.Type!);
+
+                    generator.Emit(OpCodes.Call, stringConcat);
+                    break;
+            }
+
         }));
 
         MakeUnit();
@@ -128,6 +171,25 @@ partial class CodeGenVisitor(ILGenerator generator) : IExprVisitor
     public void Visit(NullExpr expr)
     {
         generator.Emit(OpCodes.Ldnull);
+    }
+
+    void ConvertToString(IType type)
+    {
+        switch (type)
+        {
+            case StringType:
+                break;
+
+            case IntType:
+                var local = generator.DeclareLocal(type.ClrType!);
+                generator.Emit(OpCodes.Stloc, local);
+                generator.Emit(OpCodes.Ldloca, local);
+                generator.Emit(OpCodes.Call, intToString);
+                break;
+
+            default:
+                throw new InvalidOperationException($"{type} cannot be converted to a string");
+        }
     }
 
     void MakeUnit()

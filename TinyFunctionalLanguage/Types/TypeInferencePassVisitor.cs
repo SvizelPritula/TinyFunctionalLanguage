@@ -117,8 +117,25 @@ class TypeInferencePassVisitor : IExprVisitor
         if (!TypeInferencePass.IsValidLeftHandSide(expr.Left))
             throw new LanguageException($"Left hand side of assignment must be a variable or field.", expr.Left.Span);
 
-        if (expr.Right.Type != expr.Left.Type)
-            throw new LanguageException($"A value of type {expr.Right.Type} cannot be assigned to type {expr.Left.Type}", expr.Span);
+        IType left = expr.Left.Type!;
+        IType right = expr.Right.Type!;
+
+        bool possible = (expr.Operator, left, right) switch
+        {
+            (AssignmentOperator.Set, _, _) => left == right,
+            (AssignmentOperator.Plus, IntType, IntType) => true,
+            (AssignmentOperator.Minus, IntType, IntType) => true,
+            (AssignmentOperator.Star, IntType, IntType) => true,
+            (AssignmentOperator.Slash, IntType, IntType) => true,
+            (AssignmentOperator.Percent, IntType, IntType) => true,
+            (AssignmentOperator.And, BoolType, BoolType) => true,
+            (AssignmentOperator.Or, BoolType, BoolType) => true,
+            (AssignmentOperator.Plus, StringType, StringType or IntType) => true,
+            _ => false
+        };
+
+        if (!possible)
+            throw new LanguageException($"A value of type {expr.Right.Type} cannot be assigned with {expr.Operator} to type {expr.Left.Type}", expr.Span);
 
         expr.Type = UnitType.Instance;
     }

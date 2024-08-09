@@ -49,5 +49,13 @@ public enum TokenType
     Or,
     And,
 
+    PlusEqual,
+    MinusEqual,
+    StarEqual,
+    SlashEqual,
+    PercentEqual,
+    OrEqual,
+    AndEqual,
+
     Eof,
 }

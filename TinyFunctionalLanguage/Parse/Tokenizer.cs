@@ -222,16 +222,19 @@ public class Tokenizer
 
     static readonly Dictionary<string, TokenType> keywords = new()
     {
+        ["func"] = TokenType.Func,
+        ["struct"] = TokenType.Struct,
+
         ["if"] = TokenType.If,
         ["else"] = TokenType.Else,
         ["while"] = TokenType.While,
-        ["func"] = TokenType.Func,
-        ["struct"] = TokenType.Struct,
         ["let"] = TokenType.Let,
+
         ["int"] = TokenType.Int,
         ["bool"] = TokenType.Bool,
         ["unit"] = TokenType.Unit,
         ["string"] = TokenType.String,
+
         ["true"] = TokenType.True,
         ["false"] = TokenType.False,
         ["null"] = TokenType.Null,
@@ -268,6 +271,14 @@ public class Tokenizer
         [('!', '=')] = TokenType.NotEqual,
         [('<', '=')] = TokenType.LessEqual,
         [('>', '=')] = TokenType.GreaterEqual,
+
+        [('+', '=')] = TokenType.PlusEqual,
+        [('-', '=')] = TokenType.MinusEqual,
+        [('*', '=')] = TokenType.StarEqual,
+        [('/', '=')] = TokenType.SlashEqual,
+        [('%', '=')] = TokenType.PercentEqual,
+        [('&', '=')] = TokenType.AndEqual,
+        [('|', '=')] = TokenType.OrEqual,
     };
 
     static readonly Dictionary<char, char> stringEscapes = new()

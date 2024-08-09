@@ -128,7 +128,20 @@ public partial class Parser
         Point start = tokenizer.NextTokenStart;
         IExpression left = ParseExpression();
 
-        if (tokenizer.Peek().Type != TokenType.Equal)
+        AssignmentOperator? maybeOp = tokenizer.Peek().Type switch
+        {
+            TokenType.Equal => AssignmentOperator.Set,
+            TokenType.PlusEqual => AssignmentOperator.Plus,
+            TokenType.MinusEqual => AssignmentOperator.Minus,
+            TokenType.StarEqual => AssignmentOperator.Star,
+            TokenType.SlashEqual => AssignmentOperator.Slash,
+            TokenType.PercentEqual => AssignmentOperator.Percent,
+            TokenType.OrEqual => AssignmentOperator.Or,
+            TokenType.AndEqual => AssignmentOperator.And,
+            _ => null,
+        };
+
+        if (maybeOp is not AssignmentOperator op)
             return left;
 
         tokenizer.Next();
@@ -136,7 +149,7 @@ public partial class Parser
         IExpression right = ParseExpression();
         Point end = tokenizer.LastTokenEnd;
 
-        return new AssignmentExpr(left, right, new(start, end));
+        return new AssignmentExpr(op, left, right, new(start, end));
     }
 
     WhileExpr ParseWhile()

@@ -94,18 +94,10 @@ partial class CodeGenVisitor : IExprVisitor
                 break;
 
             case (BinaryOperator.Plus, StringType or IntType, StringType or IntType):
-                foreach (var side in new[] { expr.Left, expr.Right })
-                {
-                    side.Accept(this);
-
-                    if (side.Type is IntType)
-                    {
-                        var local = generator.DeclareLocal(side.Type.ClrType!);
-                        generator.Emit(OpCodes.Stloc, local);
-                        generator.Emit(OpCodes.Ldloca, local);
-                        generator.Emit(OpCodes.Call, intToString);
-                    }
-                }
+                expr.Left.Accept(this);
+                ConvertToString(expr.Left.Type!);
+                expr.Right.Accept(this);
+                ConvertToString(expr.Right.Type!);
 
                 generator.Emit(OpCodes.Call, stringConcat);
                 break;
