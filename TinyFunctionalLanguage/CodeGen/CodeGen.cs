@@ -6,7 +6,7 @@ using TinyFunctionalLanguage.Types;
 
 namespace TinyFunctionalLanguage.CodeGen;
 
-public static class CodeGen
+static class CodeGen
 {
     const string assemblyName = "TFL";
 

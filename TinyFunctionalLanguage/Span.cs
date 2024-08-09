@@ -1,4 +1,4 @@
-namespace TinyFunctionalLanguage.Parse;
+namespace TinyFunctionalLanguage;
 
 public record struct Point(int Row, int Col) { }
 

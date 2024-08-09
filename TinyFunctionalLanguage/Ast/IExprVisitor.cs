@@ -1,6 +1,6 @@
 namespace TinyFunctionalLanguage.Ast;
 
-public interface IExprVisitor
+interface IExprVisitor
 {
     void Visit(IntLiteralExpr expr);
     void Visit(BoolLiteralExpr expr);

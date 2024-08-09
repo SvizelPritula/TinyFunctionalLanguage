@@ -2,7 +2,7 @@ using TinyFunctionalLanguage.Ast;
 
 namespace TinyFunctionalLanguage.Types;
 
-public static class TypeInferencePass
+static class TypeInferencePass
 {
     public static void Run(Program program)
     {

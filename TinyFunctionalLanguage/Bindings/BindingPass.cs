@@ -2,7 +2,7 @@ using TinyFunctionalLanguage.Ast;
 
 namespace TinyFunctionalLanguage.Bindings;
 
-public static class BindingPass
+static class BindingPass
 {
     public static void Run(Program program)
     {

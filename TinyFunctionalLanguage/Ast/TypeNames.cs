@@ -3,7 +3,7 @@ using TinyFunctionalLanguage.Parse;
 
 namespace TinyFunctionalLanguage.Ast;
 
-public interface ITypeName
+interface ITypeName
 {
     Span Span { get; }
 
@@ -11,31 +11,31 @@ public interface ITypeName
     void Accept(ITypeNameVisitor visitor);
 }
 
-public record class IntTypeName(Span Span) : ITypeName
+record class IntTypeName(Span Span) : ITypeName
 {
     public T Accept<T>(ITypeNameVisitor<T> visitor) => visitor.Visit(this);
     public void Accept(ITypeNameVisitor visitor) => visitor.Visit(this);
 }
 
-public record class BoolTypeName(Span Span) : ITypeName
+record class BoolTypeName(Span Span) : ITypeName
 {
     public T Accept<T>(ITypeNameVisitor<T> visitor) => visitor.Visit(this);
     public void Accept(ITypeNameVisitor visitor) => visitor.Visit(this);
 }
 
-public record class StringTypeName(Span Span) : ITypeName
+record class StringTypeName(Span Span) : ITypeName
 {
     public T Accept<T>(ITypeNameVisitor<T> visitor) => visitor.Visit(this);
     public void Accept(ITypeNameVisitor visitor) => visitor.Visit(this);
 }
 
-public record class UnitTypeName(Span Span) : ITypeName
+record class UnitTypeName(Span Span) : ITypeName
 {
     public T Accept<T>(ITypeNameVisitor<T> visitor) => visitor.Visit(this);
     public void Accept(ITypeNameVisitor visitor) => visitor.Visit(this);
 }
 
-public record class NamedTypeName(Ident Ident, Span Span) : ITypeName
+record class NamedTypeName(Ident Ident, Span Span) : ITypeName
 {
     public Struct? Reference { get; set; } = null;
 
@@ -43,7 +43,7 @@ public record class NamedTypeName(Ident Ident, Span Span) : ITypeName
     public void Accept(ITypeNameVisitor visitor) => visitor.Visit(this);
 }
 
-public interface ITypeNameVisitor<T>
+interface ITypeNameVisitor<T>
 {
     T Visit(IntTypeName typeName);
     T Visit(BoolTypeName typeName);
@@ -52,7 +52,7 @@ public interface ITypeNameVisitor<T>
     T Visit(NamedTypeName typeName);
 }
 
-public interface ITypeNameVisitor
+interface ITypeNameVisitor
 {
     void Visit(IntTypeName typeName);
     void Visit(BoolTypeName typeName);

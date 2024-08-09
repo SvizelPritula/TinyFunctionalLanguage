@@ -3,7 +3,7 @@ using TinyFunctionalLanguage.Types;
 
 namespace TinyFunctionalLanguage.Ast;
 
-public interface IExpression
+interface IExpression
 {
     Span Span { get; }
     IType? Type { get; }

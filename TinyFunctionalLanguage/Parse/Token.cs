@@ -1,8 +1,8 @@
 namespace TinyFunctionalLanguage.Parse;
 
-public record struct Token(TokenType Type, object? Content = null);
+record struct Token(TokenType Type, object? Content = null);
 
-public enum TokenType
+enum TokenType
 {
     Ident,
     IntLiteral,

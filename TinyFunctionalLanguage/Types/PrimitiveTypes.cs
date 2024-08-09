@@ -1,6 +1,6 @@
 namespace TinyFunctionalLanguage.Types;
 
-public class IntType : IType
+class IntType : IType
 {
     private IntType() { }
     public static IntType Instance { get; } = new IntType();
@@ -9,7 +9,7 @@ public class IntType : IType
     public bool IsPrimitive => true;
 }
 
-public class BoolType : IType
+class BoolType : IType
 {
     private BoolType() { }
     public static BoolType Instance { get; } = new BoolType();
@@ -18,7 +18,7 @@ public class BoolType : IType
     public bool IsPrimitive => true;
 }
 
-public class StringType : IType
+class StringType : IType
 {
     private StringType() { }
     public static StringType Instance { get; } = new StringType();
@@ -27,7 +27,7 @@ public class StringType : IType
     public bool IsPrimitive => true;
 }
 
-public class UnitType : IType
+class UnitType : IType
 {
     private UnitType() { }
     public static UnitType Instance { get; } = new UnitType();

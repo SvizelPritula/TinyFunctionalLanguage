@@ -3,7 +3,7 @@ using System.Text;
 
 namespace TinyFunctionalLanguage.Parse;
 
-public class Tokenizer
+class Tokenizer
 {
     readonly SpannedReader reader;
 

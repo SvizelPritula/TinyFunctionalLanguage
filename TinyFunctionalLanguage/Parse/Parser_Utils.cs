@@ -2,7 +2,7 @@ using TinyFunctionalLanguage.Ast;
 
 namespace TinyFunctionalLanguage.Parse;
 
-public partial class Parser
+partial class Parser
 {
     Ident ParseIdent()
     {
