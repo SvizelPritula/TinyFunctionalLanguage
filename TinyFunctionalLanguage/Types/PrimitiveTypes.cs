@@ -7,6 +7,8 @@ class IntType : IType
 
     public Type ClrType => typeof(long);
     public bool IsPrimitive => true;
+
+    public override string ToString() => "int";
 }
 
 class BoolType : IType
@@ -16,6 +18,8 @@ class BoolType : IType
 
     public Type ClrType => typeof(bool);
     public bool IsPrimitive => true;
+
+    public override string ToString() => "bool";
 }
 
 class StringType : IType
@@ -25,6 +29,8 @@ class StringType : IType
 
     public Type ClrType => typeof(string);
     public bool IsPrimitive => true;
+
+    public override string ToString() => "string";
 }
 
 class UnitType : IType
@@ -34,4 +40,6 @@ class UnitType : IType
 
     public Type ClrType => typeof(ValueTuple);
     public bool IsPrimitive => true;
+
+    public override string ToString() => "unit";
 }

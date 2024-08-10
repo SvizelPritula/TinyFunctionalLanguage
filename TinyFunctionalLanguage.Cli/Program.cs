@@ -13,10 +13,11 @@ try
 }
 catch (LanguageException ex)
 {
-    Console.WriteLine($"{ex.Span}: {ex.Message}");
+    foreach (var error in ex.Errors)
+        Console.Error.WriteLine($"{error.Span}: {error.Message}");
 }
 
-void Dump(object? value, int indent = 1)
+static void Dump(object? value, int indent = 1)
 {
     if (value is null)
     {

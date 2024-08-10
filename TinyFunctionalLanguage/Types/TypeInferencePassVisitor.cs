@@ -3,7 +3,7 @@ using TinyFunctionalLanguage.Bindings;
 
 namespace TinyFunctionalLanguage.Types;
 
-class TypeInferencePassVisitor : IExprVisitor
+class TypeInferencePassVisitor(ErrorSet errors) : IExprVisitor
 {
     public void Visit(IntLiteralExpr expr) => expr.Type = IntType.Instance;
 
@@ -30,7 +30,13 @@ class TypeInferencePassVisitor : IExprVisitor
             subExpr.Accept(this);
         expr.Trailing?.Accept(this);
 
-        expr.Type = expr.Trailing?.Type ?? UnitType.Instance;
+        if (expr.ContainsSyntaxErrors)
+            return;
+
+        if (expr.Trailing is null)
+            expr.Type = UnitType.Instance;
+        else
+            expr.Type = expr.Trailing.Type;
     }
 
     public void Visit(IfExpr expr)
@@ -39,24 +45,31 @@ class TypeInferencePassVisitor : IExprVisitor
         expr.TrueBlock.Accept(this);
         expr.FalseBlock?.Accept(this);
 
-        if (expr.Condition.Type != BoolType.Instance)
-            throw new LanguageException($"A condition must evaluate to a boolean, is of type {expr.Condition.Type}", expr.Condition.Span);
+        if (expr.Condition.Type is not (null or BoolType))
+            errors.Add($"A condition must evaluate to a boolean, is of type {expr.Condition.Type}.", expr.Condition.Span);
 
-        IType type = expr.TrueBlock.Type!;
+        if (expr.TrueBlock is null || expr.FalseBlock is null)
+            return;
+
+        IType? type = expr.TrueBlock.Type;
 
         if (expr.FalseBlock is BlockExpr falseBlock)
         {
             if (falseBlock.Type != type)
-                throw new LanguageException(
-                    $"Branches of if blocks have different types, {type} and {falseBlock.Type}",
+            {
+                errors.Add(
+                    $"Branches of if blocks have different types, {type} and {falseBlock.Type}.",
                     expr.Span
                 );
+
+                type = null;
+            }
         }
         else
         {
             if (type != UnitType.Instance)
-                throw new LanguageException(
-                    $"The body of an if expression without an else block must return the unit type, is of type {expr.TrueBlock.Type}",
+                errors.Add(
+                    $"The body of an if expression without an else block must return the unit type, is of type {expr.TrueBlock.Type}.",
                     expr.Span
                 );
         }
@@ -69,7 +82,7 @@ class TypeInferencePassVisitor : IExprVisitor
         if (expr.Reference is IVariableLike variable)
             expr.Type = variable.Type;
         else
-            throw new LanguageException($"{expr.Ident.Name} doesn't refer to a variable", expr.Span);
+            errors.Add($"{expr.Ident.Name} doesn't refer to a variable.", expr.Span);
     }
 
     public void Visit(LetExpr expr)
@@ -83,25 +96,31 @@ class TypeInferencePassVisitor : IExprVisitor
     public void Visit(CallExpr expr)
     {
         if (expr.Function is not IdentExpr funcIdent)
-            throw new LanguageException("It's only possible to call named functions", expr.Function.Span);
+        {
+            errors.Add("It's only possible to call named functions.", expr.Function.Span);
+            return;
+        }
 
         if (funcIdent.Reference is not IFunctionLike func)
-            throw new LanguageException($"{funcIdent.Ident.Name} doesn't refer to a function", expr.Span);
+        {
+            errors.Add($"{funcIdent.Ident.Name} doesn't refer to a function.", expr.Span);
+            return;
+        }
 
         foreach (var argExpr in expr.Arguments)
             argExpr.Accept(this);
 
         if (func.Arguments.Count != expr.Arguments.Count)
-            throw new LanguageException(
-                $"The function takes {func.Arguments.Count} arguments but is called with {expr.Arguments.Count}",
+            errors.Add(
+                $"The function takes {func.Arguments.Count} arguments but is called with {expr.Arguments.Count}.",
                 expr.Span
             );
 
         foreach (var (arg, argExpr) in func.Arguments.Zip(expr.Arguments))
         {
-            if (arg.Type != argExpr.Type)
-                throw new LanguageException(
-                    $"The argument {arg.Name} has type {arg.Type}, but a value of type {argExpr.Type} is given",
+            if (argExpr.Type is not null && arg.Type != argExpr.Type)
+                errors.Add(
+                    $"The argument {arg.Name} has type {arg.Type}, but a value of type {argExpr.Type} is given.",
                     argExpr.Span
                 );
         }
@@ -113,12 +132,15 @@ class TypeInferencePassVisitor : IExprVisitor
     {
         expr.Left.Accept(this);
         expr.Right.Accept(this);
+        expr.Type = UnitType.Instance;
 
         if (!TypeInferencePass.IsValidLeftHandSide(expr.Left))
-            throw new LanguageException($"Left hand side of assignment must be a variable or field.", expr.Left.Span);
+            errors.Add($"Left hand side of assignment must be a variable or field.", expr.Left.Span);
 
-        IType left = expr.Left.Type!;
-        IType right = expr.Right.Type!;
+        if (expr.Left.Type is not IType left)
+            return;
+        if (expr.Right.Type is not IType right)
+            return;
 
         bool possible = (expr.Operator, left, right) switch
         {
@@ -135,9 +157,7 @@ class TypeInferencePassVisitor : IExprVisitor
         };
 
         if (!possible)
-            throw new LanguageException($"A value of type {expr.Right.Type} cannot be assigned with {expr.Operator} to type {expr.Left.Type}", expr.Span);
-
-        expr.Type = UnitType.Instance;
+            errors.Add($"A value of type {expr.Right.Type} cannot be assigned with {expr.Operator} to type {expr.Left.Type}", expr.Span);
     }
 
     public void Visit(WhileExpr expr)
@@ -145,12 +165,12 @@ class TypeInferencePassVisitor : IExprVisitor
         expr.Condition.Accept(this);
         expr.Body.Accept(this);
 
-        if (expr.Condition.Type != BoolType.Instance)
-            throw new LanguageException($"A condition must evaluate to a boolean, is of type {expr.Condition.Type}", expr.Condition.Span);
+        if (expr.Condition.Type is not (null or BoolType))
+            errors.Add($"A condition must evaluate to a boolean, is of type {expr.Condition.Type}.", expr.Condition.Span);
 
-        if (expr.Body.Type != UnitType.Instance)
-            throw new LanguageException(
-                $"The body of a while statement without an else must return the unit type, is of type {expr.Body.Type}",
+        if (expr.Body.Type is not (null or UnitType))
+            errors.Add(
+                $"The body of a while statement without an else must return the unit type, is of type {expr.Body.Type}.",
                 expr.Span
             );
 
@@ -160,6 +180,9 @@ class TypeInferencePassVisitor : IExprVisitor
     public void Visit(MemberExpr expr)
     {
         expr.Value.Accept(this);
+
+        if (expr.Value.Type is null)
+            return;
 
         var type = expr.Value.Type!;
 
@@ -173,7 +196,7 @@ class TypeInferencePassVisitor : IExprVisitor
             }
         }
 
-        throw new LanguageException($"The type {type} doesn't have a member called {expr.Member.Name}", expr.Span);
+        errors.Add($"The type {type} doesn't have a member called {expr.Member.Name}", expr.Span);
     }
 
     public void Visit(NullExpr expr)
@@ -181,14 +204,17 @@ class TypeInferencePassVisitor : IExprVisitor
         expr.Type = TypeInferencePass.GetTypeFromTypeName(expr.TypeName);
 
         if (expr.Type is not Struct)
-            throw new LanguageException($"Only a struct can be null", expr.TypeName.Span);
+            errors.Add($"Only a struct can be null", expr.TypeName.Span);
     }
 
-    static IType GetBinaryOpResultType(BinaryOpExpr expr)
+    IType? GetBinaryOpResultType(BinaryOpExpr expr)
     {
         BinaryOperator @operator = expr.Operator;
-        IType left = expr.Left.Type!;
-        IType right = expr.Right.Type!;
+
+        if (expr.Left.Type is not IType left)
+            return null;
+        if (expr.Right.Type is not IType right)
+            return null;
 
         switch (@operator)
         {
@@ -222,13 +248,16 @@ class TypeInferencePassVisitor : IExprVisitor
                 break;
         }
 
-        throw new LanguageException($"The {@operator} operator is not defined for types {left} and {right}", expr.Span);
+        errors.Add($"The {@operator} operator is not defined for types {left} and {right}", expr.Span);
+        return null;
     }
 
-    static IType GetUnaryOpResultType(UnaryOpExpr expr)
+    IType? GetUnaryOpResultType(UnaryOpExpr expr)
     {
         UnaryOperator @operator = expr.Operator;
-        IType type = expr.Value.Type!;
+
+        if (expr.Value.Type is not IType type)
+            return null;
 
         switch (@operator)
         {
@@ -243,6 +272,7 @@ class TypeInferencePassVisitor : IExprVisitor
                 break;
         }
 
-        throw new LanguageException($"The {@operator} operator is not defined for type {type}", expr.Span);
+        errors.Add($"The {@operator} operator is not defined for type {type}", expr.Span);
+        return null;
     }
 }

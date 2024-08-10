@@ -2,7 +2,7 @@ using TinyFunctionalLanguage.Ast;
 
 namespace TinyFunctionalLanguage.Bindings;
 
-class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor, ITypeNameVisitor
+class BindingPassVisitor(ScopedMap<string, IBindable> scope, ErrorSet errors) : IExprVisitor, ITypeNameVisitor
 {
     public void Visit(IntLiteralExpr expr) { }
 
@@ -41,7 +41,7 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor, ITy
         if (scope.TryGet(expr.Ident.Name, out var reference))
             expr.Reference = reference;
         else
-            throw new LanguageException($"There is no variable of function named {expr.Ident.Name} in the current scope.", expr.Span);
+            errors.Add($"There is no variable or function named {expr.Ident.Name} in the current scope.", expr.Span);
     }
 
     public void Visit(LetExpr expr)
@@ -93,10 +93,10 @@ class BindingPassVisitor(ScopedMap<string, IBindable> scope) : IExprVisitor, ITy
             if (reference is Struct @struct)
                 typeName.Reference = @struct;
             else
-                throw new LanguageException($"{typeName.Ident.Name} is not a type.", typeName.Span);
+                errors.Add($"{typeName.Ident.Name} is not a type.", typeName.Span);
         else
         {
-            throw new LanguageException($"There is no type named {typeName.Ident.Name} in the current scope.", typeName.Span);
+            errors.Add($"There is no type named {typeName.Ident.Name} in the current scope.", typeName.Span);
         }
     }
 }

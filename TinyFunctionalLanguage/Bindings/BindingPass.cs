@@ -4,7 +4,7 @@ namespace TinyFunctionalLanguage.Bindings;
 
 static class BindingPass
 {
-    public static void Run(Program program)
+    public static void Run(Program program, ErrorSet errors)
     {
         ScopedMap<string, IBindable> scope = new();
 
@@ -13,21 +13,23 @@ static class BindingPass
             if (decl is FunctionDecl functionDecl)
             {
                 AttachFunctionObjects(functionDecl);
-                scope.Insert(functionDecl.Ident.Name, functionDecl.Reference!);
+                if (scope.Insert(functionDecl.Ident.Name, functionDecl.Reference!))
+                    errors.Add($"Double definition of name {functionDecl.Ident.Name}.", functionDecl.Ident.Span);
             }
             else if (decl is StructDecl structDecl)
             {
                 AttachStructObjects(structDecl);
-                scope.Insert(structDecl.Ident.Name, structDecl.Reference!);
+                if (scope.Insert(structDecl.Ident.Name, structDecl.Reference!))
+                    errors.Add($"Double definition of name {structDecl.Ident.Name}.", structDecl.Ident.Span);
             }
         }
 
         foreach (FunctionDecl funcDecl in program.Functions)
-            BindFunction(scope, funcDecl);
+            BindFunction(scope, errors, funcDecl);
 
         foreach (StructDecl structDecl in program.Structs)
         {
-            BindingPassVisitor visitor = new(scope);
+            BindingPassVisitor visitor = new(scope, errors);
             foreach (var fieldDecl in structDecl.Fields)
                 fieldDecl.Type.Accept(visitor);
         }
@@ -58,13 +60,13 @@ static class BindingPass
             fields.Add(field);
         }
 
-        decl.Reference = new(fields);
+        decl.Reference = new(fields, decl.Ident.Name);
     }
 
-    static void BindFunction(ScopedMap<string, IBindable> scope, FunctionDecl funcDecl)
+    static void BindFunction(ScopedMap<string, IBindable> scope, ErrorSet errors, FunctionDecl funcDecl)
     {
 
-        BindingPassVisitor visitor = new(scope);
+        BindingPassVisitor visitor = new(scope, errors);
 
         foreach (var argDecl in funcDecl.Arguments)
             argDecl.Type.Accept(visitor);

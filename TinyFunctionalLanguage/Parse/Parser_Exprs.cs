@@ -48,10 +48,9 @@ partial class Parser
                 return ParseNullExpression();
 
             default:
-                tokenizer.Next();
-                end = tokenizer.LastTokenEnd;
+                end = tokenizer.NextTokenEnd;
 
-                throw new LanguageException($"Unexpected {token.Type} token", new(start, end));
+                throw new LanguageError($"Expected an expression, got a {token.Type.Name()} token.", new(start, end));
         }
     }
 
@@ -104,8 +103,9 @@ partial class Parser
         List<IExpression> statements = [];
         IExpression? trailing = null;
 
-        bool done = false;
-        while (!done)
+        bool containsSyntaxErrors = false;
+
+        while (true)
         {
             switch (tokenizer.Peek().Type)
             {
@@ -122,22 +122,31 @@ partial class Parser
                 case TokenType.RightBrace:
                     tokenizer.Next();
 
-                    done = true;
-                    break;
+                    goto done;
 
                 default:
                     if (trailing is not null)
                     {
                         Point lastEnd = tokenizer.LastTokenEnd;
-                        throw new LanguageException("Expected a semicolon", new Span(lastEnd, lastEnd));
+                        errors.Add("Expected a semicolon.", new Span(lastEnd, lastEnd));
                     }
 
-                    trailing = ParseStatement();
+                    try
+                    {
+                        trailing = ParseStatement();
+                    }
+                    catch (LanguageError error)
+                    {
+                        errors.Add(error);
+                        containsSyntaxErrors = true;
+                        SkipUntil(t => t == TokenType.Semi || t == TokenType.RightBrace);
+                    }
                     break;
             }
         }
 
+    done:
         Point end = tokenizer.LastTokenEnd;
-        return new BlockExpr(statements, trailing, new(start, end));
+        return new BlockExpr(statements, trailing, new(start, end), containsSyntaxErrors);
     }
 }

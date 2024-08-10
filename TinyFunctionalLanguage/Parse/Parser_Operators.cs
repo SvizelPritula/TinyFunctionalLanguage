@@ -36,7 +36,7 @@ partial class Parser
         UnaryOperator? maybeOperator = tokenizer.Peek().Type switch
         {
             TokenType.Minus => UnaryOperator.Minus,
-            TokenType.Not => UnaryOperator.Not,
+            TokenType.Bang => UnaryOperator.Not,
             _ => null,
         };
 

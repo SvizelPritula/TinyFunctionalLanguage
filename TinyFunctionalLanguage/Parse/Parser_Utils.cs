@@ -11,7 +11,7 @@ partial class Parser
         Point end = tokenizer.LastTokenEnd;
 
         if (nameToken.Type != TokenType.Ident)
-            throw new LanguageException($"Expected an identifier, got a {nameToken.Type} token", new(start, end));
+            throw new LanguageError($"Expected an identifier, got a {nameToken.Type.Name()} token.", new(start, end));
 
         return new((string)nameToken.Content!, new(start, end));
     }
@@ -30,7 +30,7 @@ partial class Parser
             TokenType.Unit => new UnitTypeName(span),
             TokenType.String => new StringTypeName(span),
             TokenType.Ident => new NamedTypeName(new((string)nameToken.Content!, span), span),
-            _ => throw new LanguageException($"Expected a type, got a {nameToken.Type} token", new(start, end)),
+            _ => throw new LanguageError($"Expected a type, got a {nameToken.Type.Name()} token.", new(start, end)),
         };
     }
 
@@ -58,7 +58,7 @@ partial class Parser
             else if (token.Type == TokenType.Comma)
                 continue;
             else
-                throw new LanguageException($"Expected a comma or right paren", new(start, end));
+                throw new LanguageError($"Expected a ',' or ')' token, got a {token.Type.Name()} token.", new(start, end));
         }
 
         return elements;
@@ -71,9 +71,28 @@ partial class Parser
         if (got != expected)
         {
             Point point = tokenizer.LastTokenEnd;
-            throw new LanguageException($"Expected {expected}", new(point, point));
+            throw new LanguageError($"Expected a {expected.Name()} token, got a {got.Name()} token.", new(point, point));
         }
 
         tokenizer.Next();
+    }
+
+    void SkipUntil(Func<TokenType, bool> end)
+    {
+        while (!end(tokenizer.Peek().Type))
+            SkipTokenOrGroup();
+    }
+
+    void SkipTokenOrGroup()
+    {
+        switch (tokenizer.Next().Type)
+        {
+            case TokenType.LeftBrace:
+                SkipUntil(t => t == TokenType.RightBrace);
+                break;
+            case TokenType.LeftParen:
+                SkipUntil(t => t == TokenType.RightParen);
+                break;
+        }
     }
 }

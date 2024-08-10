@@ -6,15 +6,18 @@ namespace TinyFunctionalLanguage.Parse;
 class Tokenizer
 {
     readonly SpannedReader reader;
+    readonly ErrorSet errors;
 
     public Point LastTokenEnd { get; private set; }
     public Point NextTokenStart { get; private set; }
+    public Point NextTokenEnd => reader.Point;
 
-    private Token nextToken;
+    Token nextToken;
 
-    public Tokenizer(string sourceCode)
+    public Tokenizer(string sourceCode, ErrorSet errors)
     {
         reader = new(sourceCode);
+        this.errors = errors;
 
         SeekToNextToken();
         nextToken = ParseNextToken();
@@ -118,10 +121,13 @@ class Tokenizer
         Point end = reader.Point;
 
         if (hasBadCharacters)
-            throw new LanguageException("Integer literal cannot contain letters", new(start, end));
+            errors.Add("Integer literal cannot contain letters.", new(start, end));
 
         if (hasOverflow)
-            throw new LanguageException("Literal too large to fit in 64-bit signed integer", new(start, end));
+            errors.Add("Literal too large to fit in 64-bit signed integer.", new(start, end));
+
+        if (hasBadCharacters || hasOverflow)
+            value = 0;
 
         return new(TokenType.IntLiteral, (long)value);
     }
@@ -138,7 +144,10 @@ class Tokenizer
             int c = reader.Read();
 
             if (c < 0)
-                throw new LanguageException("String literal isn't terminated until end of file", new(start, reader.Point));
+            {
+                errors.Add("String literal isn't terminated until end of file.", new(start, reader.Point));
+                return '"';
+            }
 
             return (char)c;
         }
@@ -162,12 +171,10 @@ class Tokenizer
 
                     for (int i = 0; i < 4; i++)
                     {
-                        char digit = ReadOrError();
-
-                        if (char.IsAsciiHexDigit(digit))
-                            charCode.Append(digit);
+                        if (IsCharAnd(reader.Peek(), char.IsAsciiHexDigit))
+                            charCode.Append((char)reader.Read());
                         else
-                            throw new LanguageException("A \\u escape sequence must be followed by 4 hexadecimal characters", new(escapeStart, reader.Point));
+                            errors.Add("A \\u escape sequence must be followed by 4 hexadecimal characters.", new(escapeStart, reader.Point));
                     }
 
                     int parsed = int.Parse(charCode.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
@@ -175,7 +182,7 @@ class Tokenizer
                 }
                 else
                 {
-                    throw new LanguageException("Invalid escape type", new(escapeStart, reader.Point));
+                    errors.Add("Invalid escape type.", new(escapeStart, reader.Point));
                 }
             }
             else if (c == '"')
@@ -213,7 +220,8 @@ class Tokenizer
 
         Point end = reader.Point;
 
-        throw new LanguageException("Unknown character", new(start, end));
+        errors.Add("Unknown character.", new(start, end));
+        return new(TokenType.Error);
     }
 
     static bool IsCharAnd(int c, Func<char, bool> func) => c >= 0 && func((char)c);
@@ -260,7 +268,7 @@ class Tokenizer
         ['*'] = TokenType.Star,
         ['/'] = TokenType.Slash,
         ['%'] = TokenType.Percent,
-        ['!'] = TokenType.Not,
+        ['!'] = TokenType.Bang,
         ['|'] = TokenType.Or,
         ['&'] = TokenType.And,
     };

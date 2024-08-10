@@ -9,10 +9,15 @@ public static class Compiler
 {
     public static Module Compile(string code)
     {
-        var ast = Parser.Parse(new Tokenizer(code));
+        ErrorSet errors = new();
 
-        BindingPass.Run(ast);
-        TypeInferencePass.Run(ast);
+        var ast = Parser.Parse(new Tokenizer(code, errors), errors);
+
+        BindingPass.Run(ast, errors);
+        TypeInferencePass.Run(ast, errors);
+
+        if (errors.HasErrors)
+            throw errors.Exception();
 
         return CodeGen.CodeGen.Compile(ast);
     }

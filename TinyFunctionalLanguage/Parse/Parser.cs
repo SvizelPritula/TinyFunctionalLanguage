@@ -4,43 +4,53 @@ namespace TinyFunctionalLanguage.Parse;
 
 partial class Parser
 {
-    public static Program Parse(Tokenizer tokenizer)
+    public static Program Parse(Tokenizer tokenizer, ErrorSet errors)
     {
-        return new Parser(tokenizer).ParseProgram();
+        return new Parser(tokenizer, errors).ParseProgram();
     }
 
-    private Parser(Tokenizer tokenizer)
+    private Parser(Tokenizer tokenizer, ErrorSet errors)
     {
         this.tokenizer = tokenizer;
+        this.errors = errors;
     }
 
     readonly Tokenizer tokenizer;
+    readonly ErrorSet errors;
 
     Program ParseProgram()
     {
         List<IDeclaration> declarations = [];
-        bool endOfFile = false;
 
-        while (!endOfFile)
+        while (true)
         {
-            switch (tokenizer.Peek().Type)
+            try
             {
-                case TokenType.Eof:
-                    endOfFile = true;
-                    break;
+                switch (tokenizer.Peek().Type)
+                {
+                    case TokenType.Eof:
+                        goto done;
 
-                case TokenType.Func:
-                    declarations.Add(ParseFunction());
-                    break;
+                    case TokenType.Func:
+                        declarations.Add(ParseFunction());
+                        break;
 
-                case TokenType.Struct:
-                    declarations.Add(ParseStruct());
-                    break;
+                    case TokenType.Struct:
+                        declarations.Add(ParseStruct());
+                        break;
 
-                default:
-                    throw new LanguageException("Expected a func of struct declaration", new(tokenizer.NextTokenStart));
+                    default:
+                        throw new LanguageError("Expected a func of struct declaration.", new(tokenizer.NextTokenStart));
+                }
+            }
+            catch (LanguageError error)
+            {
+                errors.Add(error);
+                SkipUntil(t => t == TokenType.Func || t == TokenType.Struct);
             }
         }
+
+    done:
 
         return new(declarations);
     }

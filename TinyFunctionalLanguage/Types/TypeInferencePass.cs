@@ -4,7 +4,7 @@ namespace TinyFunctionalLanguage.Types;
 
 static class TypeInferencePass
 {
-    public static void Run(Program program)
+    public static void Run(Program program, ErrorSet errors)
     {
         foreach (StructDecl @struct in program.Structs)
             SetTypesForStruct(@struct);
@@ -13,7 +13,7 @@ static class TypeInferencePass
             SetTypesForFunction(function);
 
         foreach (FunctionDecl function in program.Functions)
-            ProcessFunction(function);
+            ProcessFunction(function, errors);
     }
 
     static void SetTypesForFunction(FunctionDecl decl)
@@ -33,31 +33,34 @@ static class TypeInferencePass
             field.Type = GetTypeFromTypeName(fieldDecl.Type);
     }
 
-    static void ProcessFunction(FunctionDecl decl)
+    static void ProcessFunction(FunctionDecl decl, ErrorSet errors)
     {
         var func = decl.Reference!;
 
-        decl.Block.Accept(new TypeInferencePassVisitor());
+        decl.Block.Accept(new TypeInferencePassVisitor(errors));
+
+        if (decl.Block.Type is null || func.ReturnType is null)
+            return;
 
         if (decl.Block.Type != func.ReturnType)
-            throw new LanguageException(
-                $"The {decl.Ident.Name} function should return {func.ReturnType} but returns {decl.Block.Type}",
+            errors.Add(
+                $"The {decl.Ident.Name} function should return {func.ReturnType} but returns {decl.Block.Type}.",
                 decl.Block.Span
             );
     }
 
-    internal static IType GetTypeFromTypeName(ITypeName name)
+    internal static IType? GetTypeFromTypeName(ITypeName name)
     {
         return name.Accept(new TypeResolverVisitor());
     }
 
-    class TypeResolverVisitor : ITypeNameVisitor<IType>
+    class TypeResolverVisitor : ITypeNameVisitor<IType?>
     {
         public IType Visit(IntTypeName typeName) => IntType.Instance;
         public IType Visit(BoolTypeName typeName) => BoolType.Instance;
         public IType Visit(StringTypeName typeName) => StringType.Instance;
         public IType Visit(UnitTypeName typeName) => UnitType.Instance;
-        public IType Visit(NamedTypeName typeName) => typeName.Reference!;
+        public IType? Visit(NamedTypeName typeName) => typeName.Reference;
     }
 
     internal static bool IsValidLeftHandSide(IExpression expr)

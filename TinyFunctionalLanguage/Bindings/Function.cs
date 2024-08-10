@@ -18,7 +18,7 @@ record class Function(List<Argument> Arguments) : IFunctionLike
     IReadOnlyList<IVariableLike> IFunctionLike.Arguments => Arguments;
 }
 
-record class Struct(List<Field> Fields) : IFunctionLike, IType
+record class Struct(List<Field> Fields, string Name) : IFunctionLike, IType
 {
     public TypeBuilder? TypeBuilder { get; set; }
     public ConstructorInfo? ConstructorInfo { get; set; }
@@ -30,4 +30,6 @@ record class Struct(List<Field> Fields) : IFunctionLike, IType
 
     IReadOnlyList<IVariableLike> IFunctionLike.Arguments => Fields;
     IType? IFunctionLike.ReturnType => this;
+
+    public override string ToString() => Name;
 }
