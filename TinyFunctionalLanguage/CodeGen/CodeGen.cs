@@ -43,7 +43,7 @@ static class CodeGen
         );
 
         foreach (var (arg, idx) in @func.Arguments.Select((f, i) => (f, i)))
-            method.DefineParameter(idx, ParameterAttributes.None, arg.Name);
+            method.DefineParameter(idx + 1, ParameterAttributes.None, arg.Name);
 
         func.MethodBuilder = method;
     }
@@ -78,8 +78,8 @@ static class CodeGen
                 [type, type]
             );
 
-            method.DefineParameter(0, ParameterAttributes.None, "lhs");
-            method.DefineParameter(0, ParameterAttributes.None, "rhs");
+            method.DefineParameter(1, ParameterAttributes.None, "lhs");
+            method.DefineParameter(2, ParameterAttributes.None, "rhs");
 
             return method;
         }
@@ -116,7 +116,7 @@ static class CodeGen
         @struct.ConstructorInfo = constructor;
 
         foreach (var (field, idx) in @struct.Fields.Select((f, i) => (f, i)))
-            constructor.DefineParameter(idx, ParameterAttributes.None, field.Name);
+            constructor.DefineParameter(idx + 1, ParameterAttributes.None, field.Name);
 
         var generator = constructor.GetILGenerator();
 
