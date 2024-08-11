@@ -43,11 +43,18 @@ class Tokenizer
         {
             if (IsCharAnd(reader.Peek(), char.IsWhiteSpace))
                 reader.Read();
+            else if (IsCharAnd(reader.Peek(), c => c == '#'))
+                SkipComment();
             else
                 break;
         }
 
         NextTokenStart = reader.Point;
+    }
+
+    void SkipComment()
+    {
+        while (IsCharAnd(reader.Read(), c => c != '\n')) { }
     }
 
     Token ParseNextToken()
