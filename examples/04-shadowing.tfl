@@ -1,0 +1,7 @@
+func main(): bool {
+    let a = 10;
+    let a = a + 7;
+    let a = a == 17;
+
+    a
+}

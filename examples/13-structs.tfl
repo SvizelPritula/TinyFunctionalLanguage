@@ -1,0 +1,8 @@
+struct Person {
+    name: string;
+    age: int;
+}
+
+func main(): Person {
+    Person("Ben", 20)
+}

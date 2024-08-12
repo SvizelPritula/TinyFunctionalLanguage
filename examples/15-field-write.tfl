@@ -1,0 +1,18 @@
+struct Person {
+    name: string;
+    age: int;
+}
+
+struct Pair {
+    a: Person;
+    b: Person;
+}
+
+func main(): Pair {
+    let person = Person("Ben", 20);
+    let copy = person;
+
+    person.age += 1;
+
+    Pair(person, copy)
+}

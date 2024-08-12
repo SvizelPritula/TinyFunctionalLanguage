@@ -1,0 +1,9 @@
+func main(): int {
+    let a = 10;
+    
+    a = 20;
+    a += 7;
+
+    let b = a;
+    b
+}

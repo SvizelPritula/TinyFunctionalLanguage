@@ -1,0 +1,4 @@
+func main(name: string, num: int): string {
+    "Hello, " + name + "!\n"
+    + "Your number is: " + num
+}

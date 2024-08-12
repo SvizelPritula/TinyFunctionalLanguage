@@ -1,0 +1,25 @@
+func main(n: int): string {
+    let result = "";
+
+    let i = 1;
+    while i <= n {
+        let word = "";
+
+        if i % 3 == 0 {
+            word += "fizz";
+        };
+        if i % 5 == 0 {
+            word += "buzz";
+        };
+
+        result += if word != "" {
+            word
+        } else {
+            i + ""
+        } + "\n";
+
+        i += 1;
+    };
+
+    result
+}

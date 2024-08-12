@@ -1,0 +1,20 @@
+func main(a: int, b: int): int {
+    error(a, b)
+}
+
+func square(n: int): int {
+    n * n
+}
+
+func average(a: int, b: int): int {
+    (a + b) / 2
+}
+
+func error(a: int, b: int): int {
+    let avg = average(a, b);
+
+    average(
+        square(a - avg),
+        square(b - avg)
+    )
+}

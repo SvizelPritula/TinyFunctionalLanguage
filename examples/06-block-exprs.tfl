@@ -1,0 +1,10 @@
+func main(): int {
+    let a = 10;
+
+    let b = {
+        let a = 2;
+        a
+    };
+
+    a + b
+}

@@ -1,0 +1,15 @@
+struct Person {
+    name: string;
+    age: int;
+    parent: Person;
+}
+
+func main(): Person {
+    let person = Person(
+        "Tom",
+        5,
+        Person("Jane", 35, null Person)
+    );
+
+    person
+}

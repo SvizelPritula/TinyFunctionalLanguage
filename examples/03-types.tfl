@@ -1,0 +1,6 @@
+func main(): unit {
+    let _int = 5;
+    let _string = "hello";
+    let _bool = true;
+    let _unit = {};
+}

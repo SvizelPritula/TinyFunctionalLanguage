@@ -1,0 +1,7 @@
+func main(age: int): string {
+    if age >= 18 {
+        "adult"
+    } else {
+        "child"
+    }
+}
