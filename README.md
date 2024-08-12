@@ -382,6 +382,51 @@ func main(node: Node): unit {
 }
 ```
 
+### Comparing structs
+
+Structs can be compared using the `==` and `!=` operators.
+They will compare the structs field by field:
+
+```
+func main(): unit {
+    let a = Point(10, 20) == Point(10, 20); # true
+    let b = Point(10, 20) == Point(10, 19); # false
+}
+```
+
+### Null
+
+Structs (and only structs) can also have the special value of `null`.
+This is necessary to allow recursive structs to exists.
+For type inference reasons, the `null` keyword must be followed by the name of the struct:
+
+```
+struct List {
+    value: int;
+    next: List;
+}
+
+func get_even_primes(): List {
+    List(2, null List)
+}
+```
+
+Trying to access a field of a `null` struct fill cause the program to terminate.
+You can check if a struct is `null` using the `==` or `!=` operator:
+
+```
+func sum(list: List) -> int {
+    let sum = 0;
+
+    while (list != null List) {
+        sum += list.value;
+        list = list.next;
+    };
+
+    sum
+}
+```
+
 ## Comments
 
 You can use the `#` symbol to create a comment.
