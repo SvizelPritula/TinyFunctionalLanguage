@@ -27,8 +27,17 @@ if (method is null)
 }
 
 var parsedParams = PrepareFuncArgsOrExit(method, cliArgs.Args);
-var result = method.Invoke(null, parsedParams);
-DumpObject(result);
+
+try
+{
+    var result = method.Invoke(null, parsedParams);
+    DumpObject(result);
+}
+catch (TargetInvocationException ex)
+{
+    Console.Error.WriteLine(ex.InnerException);
+    return 1;
+}
 
 return 0;
 
