@@ -6,7 +6,9 @@ namespace TinyFunctionalLanguage.Ast;
 
 record class MemberExpr(IExpression Value, Ident Member, Span Span) : IExpression
 {
+    // Filled in by the type inference pass
     public IType? Type { get; set; } = null;
+    // Filled in by the type inference pass
     public Field? Reference { get; set; } = null;
     public void Accept(IExprVisitor visitor) => visitor.Visit(this);
 }

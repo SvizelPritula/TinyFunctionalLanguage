@@ -5,6 +5,7 @@ namespace TinyFunctionalLanguage.Ast;
 
 record class WhileExpr(IExpression Condition, BlockExpr Body, Span Span) : IExpression
 {
+    // Filled in by the type inference pass
     public IType? Type { get; set; } = null;
     public void Accept(IExprVisitor visitor) => visitor.Visit(this);
 }

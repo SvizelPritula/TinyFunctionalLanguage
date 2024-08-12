@@ -37,6 +37,7 @@ record class UnitTypeName(Span Span) : ITypeName
 
 record class NamedTypeName(Ident Ident, Span Span) : ITypeName
 {
+    // Filled in by the binding pass
     public Struct? Reference { get; set; } = null;
 
     public T Accept<T>(ITypeNameVisitor<T> visitor) => visitor.Visit(this);
