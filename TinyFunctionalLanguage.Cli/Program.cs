@@ -39,6 +39,11 @@ static void DumpObject(object? value, int indent = 1)
         Console.WriteLine("null");
         return;
     }
+    else if (value is ValueTuple)
+    {
+        Console.WriteLine("unit");
+        return;
+    }
 
     var indentStr = new string(' ', indent * 2);
     Console.WriteLine(value);
