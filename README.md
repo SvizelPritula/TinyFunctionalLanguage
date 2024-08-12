@@ -438,3 +438,59 @@ func main(): int { # Declares a function called main
     a # Returns the variable
 } # End the function
 ```
+
+## CLI
+
+To run programs, you can use the CLI.
+It will simply run the function called `main` and print out whatever it returns.
+
+The first argument of the CLI is the path to the program to execute:
+
+```
+> TinyFunctionalLanguage.Cli hello_world.tfl
+Hello, world!
+```
+
+Any other arguments will be parsed and passed on to `main`.
+Consider this program:
+
+```
+# hello.tfl
+func main(name: string, age: int): string {
+    "Hello, " + name + "!\nI've heard you're " + age + " years old."
+}
+```
+
+This program can be executed like this:
+
+```
+> TinyFunctionalLanguage.Cli hello.tfl Benjamin 20
+Hello, Benjamin!
+I've heard you're 20 years old.
+```
+
+If `main` returns a struct, it will be printed out as a tree.
+For example, this program:
+
+```
+# cat.tfl
+struct Cat {
+    name: string;
+    age: int;
+    is_black: bool;
+}
+
+func main(): Cat {
+    Cat("Vendulka", 4, false)
+}
+```
+
+Will print the following output:
+
+```
+> TinyFunctionalLanguage.Cli cat.tfl
+Cat
+  name = Vendulka
+  age = 4
+  is_black = False
+```
