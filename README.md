@@ -72,7 +72,7 @@ A function starts with the `func` keyword, followed by the name of the function,
 the argument list (including the argument types) and the return type, like so:
 
 ```
-func add(a: int, b: int): unit {
+func add(a: int, b: int): int {
     a + b
 }
 ```
@@ -136,7 +136,7 @@ the bodies of functions are written in an imperative style.
 You can declare a variable using the `let` keyword:
 
 ```
-func main() {
+func main(): unit {
     let cost_per_unit = 15;
     let units_bought = 4;
     let total_cost = cost_per_unit * units_bought; # 60
@@ -147,7 +147,7 @@ The type of the variable is automatically inferred.
 Variables are mutable and can be assigned to:
 
 ```
-func main() {
+func main(): unit {
     let n = 10;
     n = -n;     # -10
     n = n * n;  # 100
@@ -162,7 +162,7 @@ A variable only gets added to the current scope after the `let` statement finish
 so you can use the previous variable with a given name when declaring the next:
 
 ```
-func main() {
+func main(): unit {
     let n = 10;
     let n = n / 2;  # 5
     let n = n == 5; # true
@@ -255,12 +255,12 @@ func get_greeting(age: int): string {
 To create loops, you can use the `while` statement:
 
 ```
-fn factorial(n: int): int {
+func factorial(n: int): int {
     let result = 1;
 
     while n > 0 {
         result *= n;
-        n *= 1;
+        n -= 1;
     };
 
     result
@@ -300,7 +300,7 @@ but they can be created through concatenation:
 ```
 func main(): string {
     let subject = "world";
-    "hello " + subject + "!";
+    "Hello " + subject + "!"
 }
 ```
 
@@ -352,8 +352,8 @@ func get_person(): Person {
 You can use the dot "operator" to get the value of a field:
 
 ```
-bool has_discount(person: Person): bool {
-    person.is_student && person.age <= 26
+func has_discount(person: Person): bool {
+    person.is_student & person.age <= 26
 }
 ```
 
@@ -415,10 +415,10 @@ Trying to access a field of a `null` struct fill cause the program to terminate.
 You can check if a struct is `null` using the `==` or `!=` operator:
 
 ```
-func sum(list: List) -> int {
+func sum(list: List): int {
     let sum = 0;
 
-    while (list != null List) {
+    while list != null List {
         sum += list.value;
         list = list.next;
     };
