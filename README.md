@@ -16,7 +16,7 @@ Additionally, its possible to define arbitrary structs.
 
 All values in TFL are immutable.
 
-## Basic operators
+## Operators
 
 TFL supports five binary arithmetic operators: addition (`+`), subtraction (`-`),
 multiplication (`*`) and integer division (`/`) and remainder (`%`).
@@ -65,7 +65,7 @@ func distance_squared(a: Point, b: Point): int {
 
 Functions and structs may be declared in any order.
 
-### Functions
+## Functions
 
 Since TFL is a functional language, its most important building block is a function.
 A function starts with the `func` keyword, followed by the name of the function,
@@ -89,6 +89,8 @@ func distance_squared(ax: int, ay: int, bx: int, by: int): int {
 }
 ```
 
+### Returning values
+
 Unlike some other languages, there is no `return` statement.
 To return a value, simply write an expression at the end of the function body
 (without a trailing semicolon).
@@ -109,6 +111,20 @@ func do_nothing(x: int): unit {
 ```
 
 Since functions in TFL have no side-effects, such a function isn't very useful.
+
+### Calling functions
+
+Functions can of course be called:
+
+```
+func double(n: int): int {
+    n * n
+}
+
+func quadruple(n: int): int {
+    double(double(n))
+}
+```
 
 ## Statements and control flow
 
@@ -294,4 +310,86 @@ You can also concatenate a `string` and an `int`:
 func main(a: int, b: int): string {
     a + " + " + b + " = " + (a + b)
 }
+```
+
+## Structs
+
+Finally, you can declare structs using the `struct` keyword:
+
+```
+struct Person {
+    name: string;
+    age: int;
+    is_student: bool;
+}
+```
+
+Structs are heap-allocated,
+which means that they can contain themselves recursively:
+
+```
+struct Node {
+    value: int;
+    left: Node;
+    right: Node;
+}
+```
+
+### Constructing structs
+
+To create an instance of a struct,
+simply call the structs name as if it were a function,
+with each argument corresponding to one of the structs fields:
+
+```
+func get_person(): Person {
+    Person("Gordon Freeman", 27, false)
+}
+```
+
+### Accessing fields
+
+You can use the dot "operator" to get the value of a field:
+
+```
+bool has_discount(person: Person): bool {
+    person.is_student && person.age <= 26
+}
+```
+
+You can also use the `=` operator (and its friends `+=`, `-=`, etc.)
+to change the value of a field.
+This doesn't actually change the original struct,
+it instead creates a new instance with the field changed:
+
+```
+func main(): unit {
+    let person = Person("Gordon Freeman", 27, false);
+    let copy = person;
+
+    person.age += 1;
+
+    let x = person.age; # 28
+    let y = copy.age; # 27
+}
+```
+
+You can chain field accesses arbitrarily:
+
+```
+func main(node: Node): unit {
+    node.left.left.right.left.value = 0;
+}
+```
+
+## Comments
+
+You can use the `#` symbol to create a comment.
+The comment goes on until the end of the line:
+
+```
+func main(): int { # Declares a function called main
+    let a = 5; # Assigns 5 to a variable
+    a # Returns the variable
+} # End the function
 ```
