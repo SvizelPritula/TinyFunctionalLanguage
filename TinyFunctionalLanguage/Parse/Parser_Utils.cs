@@ -79,7 +79,7 @@ partial class Parser
 
     void SkipUntil(Func<TokenType, bool> end)
     {
-        while (!end(tokenizer.Peek().Type))
+        while (!end(tokenizer.Peek().Type) && tokenizer.Peek().Type != TokenType.Eof)
             SkipTokenOrGroup();
     }
 
